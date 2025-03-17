@@ -116,24 +116,26 @@
     </div>
 
     <script>
+       <!-- JavaScript Code Here -->
+    
         document.getElementById('messageForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const message = document.getElementById('message').value;
             const confirmationMessage = document.getElementById('confirmationMessage');
             
-            // Στείλτε το μήνυμα στον server (Node.js backend)
-            fetch('http://localhost:3000/send', {
+            // Στείλτε το μήνυμα στον server
+            fetch('https://sms-event.netlify.app/send', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json', // Χρησιμοποιούμε το σωστό Content-Type
                 },
-                body: `message=${message}`
+                body: JSON.stringify({ message: message })  // Στέλνουμε το μήνυμα ως JSON
             })
-            .then(response => response.text())
+            .then(response => response.json()) // Περιμένουμε JSON απάντηση
             .then(data => {
                 confirmationMessage.textContent = 'Το μήνυμα εστάλη με επιτυχία!';
-                confirmationMessage.style.color = '#9b4d96'; // Μοβ επιβεβαίωση
+                confirmationMessage.style.color = '#9b4d96'; // Μοβ για επιτυχία
             })
             .catch(error => {
                 console.error('Σφάλμα:', error);
