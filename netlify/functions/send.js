@@ -1,6 +1,4 @@
-// netlify/functions/send.js
-
-let messages = []; // Ο πίνακας των μηνυμάτων
+let messages = []; // Ένας πίνακας για να κρατάμε τα μηνύματα
 
 exports.handler = async function (event, context) {
     if (event.httpMethod === 'POST') {
@@ -16,16 +14,10 @@ exports.handler = async function (event, context) {
             statusCode: 200,
             body: JSON.stringify({ success: true, message: "Το μήνυμα εστάλη επιτυχώς!" })
         };
-    } else if (event.httpMethod === 'GET') {
-        // Επιστρέφουμε τα μηνύματα όταν ζητηθούν μέσω GET
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ messages }) // Επιστρέφουμε τα μηνύματα
-        };
     } else {
         return {
             statusCode: 405, // Method Not Allowed
-            body: JSON.stringify({ message: "Μόνο POST ή GET αιτήματα υποστηρίζονται" })
+            body: JSON.stringify({ message: "Μόνο POST αιτήματα υποστηρίζονται" })
         };
     }
 };
