@@ -125,6 +125,8 @@
             const confirmationMessage = document.getElementById('confirmationMessage');
             
             // Στείλτε το μήνυμα στον server
+            console.log('Στέλνω το μήνυμα:', message);
+
             fetch('/.netlify/functions/send', {
                 method: 'POST',
                 headers: {
@@ -132,6 +134,11 @@
                 },
                 body: JSON.stringify({ message: message })  // Στέλνουμε το μήνυμα ως JSON
             })
+            .then(response => {
+            console.log('Απάντηση από τον server:', response);
+            return response.json();
+            })
+
             .then(response => response.json()) // Περιμένουμε JSON απάντηση
             .then(data => {
                 confirmationMessage.textContent = 'Το μήνυμα εστάλη με επιτυχία!';
