@@ -9,26 +9,68 @@
     <h1>Διαχείριση Μηνυμάτων</h1>
     <div id="messages"></div>
 
-    <script>// Καταναλώνουμε το /messages GET endpoint για να πάρουμε τα μηνύματα
-        fetch('/.netlify/functions/messages')
-            .then(response => response.json())
-            .then(data => {
-                const messagesDiv = document.getElementById('messages');
-                const messages = data.messages;
+    <script>
+        // Συνάρτηση για την εμφάνιση των μηνυμάτων
+        function loadMessages() {
+            fetch('/.netlify/functions/messages')
+                .then(response => response.json())
+                .then(data => {
+                    const messagesDiv = document.getElementById('messages');
+                    const messages = data.messages;
 
-                if (messages.length === 0) {
-                    messagesDiv.innerHTML = 'Δεν υπάρχουν μηνύματα';
-                } else {
-                    messages.forEach(message => {
-                        const messageElement = document.createElement('div');
-                        messageElement.textContent = message;
-                        messagesDiv.appendChild(messageElement);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Σφάλμα:', error);
-                document.getElementById('messages').textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
-            });</script>
+                    messagesDiv.innerHTML = ''; // Καθαρίζουμε τα προηγούμενα μηνύματα
+
+                    if (messages.length === 0) {
+                        messagesDiv.innerHTML = 'Δεν υπάρχουν μηνύματα';
+                    } else {
+                        messages.forEach((message, index) => {
+                            const messageElement = document.createElement('div');
+                            messageElement.textContent = message;
+
+                            // Δημιουργούμε κουμπιά αποδοχής και απόρριψης για κάθε μήνυμα
+                            const acceptButton = document.createElement('button');
+                            acceptButton.textContent = 'Αποδοχή';
+                            acceptButton.style.marginRight = '10px';
+                            acceptButton.onclick = function() {
+                                handleResponse(index, 'accept');
+                            };
+
+                            const rejectButton = document.createElement('button');
+                            rejectButton.textContent = 'Απόρριψη';
+                            rejectButton.onclick = function() {
+                                handleResponse(index, 'reject');
+                            };
+
+                            messageElement.appendChild(acceptButton);
+                            messageElement.appendChild(rejectButton);
+
+                            messagesDiv.appendChild(messageElement);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Σφάλμα:', error);
+                    document.getElementById('messages').textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
+                });
+        }
+
+        // Συνάρτηση για να χειριστείς την αποδοχή ή απόρριψη μηνύματος
+        function handleResponse(messageIndex, action) {
+            const messagesDiv = document.getElementById('messages');
+            const actionMessage = action === 'accept' ? 'Αποδέχτηκες το μήνυμα.' : 'Απορρίψατε το μήνυμα.';
+            alert(actionMessage);
+            // Μπορείς να προσθέσεις οποιαδήποτε λογική θέλεις για την αποδοχή ή απόρριψη
+            // Παράδειγμα, να αφαιρέσεις το μήνυμα από το UI ή να το στείλεις κάπου για καταγραφή
+
+            // Για να αφαιρέσουμε το μήνυμα από το UI
+            messagesDiv.children[messageIndex].remove();
+        }
+
+        // Καλέστε τη συνάρτηση για να φορτωθούν τα μηνύματα
+        loadMessages();
+
+        // Ρύθμιση για να φορτώνονται τα μηνύματα κάθε 10 δευτερόλεπτα
+        setInterval(loadMessages, 10000);  // Ανανέωση κάθε 10 δευτερόλεπτα
+    </script>
 </body>
 </html>
