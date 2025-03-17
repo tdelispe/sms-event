@@ -3,47 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Διαχείριση Μηνυμάτων</title>
+    <title>Εμφάνιση Μηνυμάτων</title>
 </head>
 <body>
-    <h1>Διαχείριση Μηνυμάτων</h1>
+    <h1>Μηνύματα που Στάλθηκαν</h1>
+
     <div id="messages"></div>
 
     <script>
-        // Συνάρτηση για την εμφάνιση των μηνυμάτων
+        // Λειτουργία για να φορτώσουμε τα μηνύματα από το backend
         function loadMessages() {
-            fetch('/.netlify/functions/messages')
+            fetch('https://sms-event.netlify.app/netlify/functions/send') // Καλούμε το GET endpoint για να πάρουμε τα μηνύματα
                 .then(response => response.json())
                 .then(data => {
                     const messagesDiv = document.getElementById('messages');
                     const messages = data.messages;
 
-                    messagesDiv.innerHTML = ''; // Καθαρίζουμε τα προηγούμενα μηνύματα
+                    // Καθαρίζουμε τα προηγούμενα μηνύματα
+                    messagesDiv.innerHTML = '';
 
                     if (messages.length === 0) {
                         messagesDiv.innerHTML = 'Δεν υπάρχουν μηνύματα';
                     } else {
-                        messages.forEach((message, index) => {
+                        // Εμφάνιση των μηνυμάτων
+                        messages.forEach(message => {
                             const messageElement = document.createElement('div');
                             messageElement.textContent = message;
-
-                            // Δημιουργούμε κουμπιά αποδοχής και απόρριψης για κάθε μήνυμα
-                            const acceptButton = document.createElement('button');
-                            acceptButton.textContent = 'Αποδοχή';
-                            acceptButton.style.marginRight = '10px';
-                            acceptButton.onclick = function() {
-                                handleResponse(index, 'accept');
-                            };
-
-                            const rejectButton = document.createElement('button');
-                            rejectButton.textContent = 'Απόρριψη';
-                            rejectButton.onclick = function() {
-                                handleResponse(index, 'reject');
-                            };
-
-                            messageElement.appendChild(acceptButton);
-                            messageElement.appendChild(rejectButton);
-
                             messagesDiv.appendChild(messageElement);
                         });
                     }
@@ -54,23 +39,8 @@
                 });
         }
 
-        // Συνάρτηση για να χειριστείς την αποδοχή ή απόρριψη μηνύματος
-        function handleResponse(messageIndex, action) {
-            const messagesDiv = document.getElementById('messages');
-            const actionMessage = action === 'accept' ? 'Αποδέχτηκες το μήνυμα.' : 'Απορρίψατε το μήνυμα.';
-            alert(actionMessage);
-            // Μπορείς να προσθέσεις οποιαδήποτε λογική θέλεις για την αποδοχή ή απόρριψη
-            // Παράδειγμα, να αφαιρέσεις το μήνυμα από το UI ή να το στείλεις κάπου για καταγραφή
-
-            // Για να αφαιρέσουμε το μήνυμα από το UI
-            messagesDiv.children[messageIndex].remove();
-        }
-
-        // Καλέστε τη συνάρτηση για να φορτωθούν τα μηνύματα
+        // Φορτώνουμε τα μηνύματα μόλις φορτώσει η σελίδα
         loadMessages();
-
-        // Ρύθμιση για να φορτώνονται τα μηνύματα κάθε 10 δευτερόλεπτα
-        setInterval(loadMessages, 10000);  // Ανανέωση κάθε 10 δευτερόλεπτα
     </script>
 </body>
 </html>
