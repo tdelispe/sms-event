@@ -125,7 +125,7 @@
             const confirmationMessage = document.getElementById('confirmationMessage');
             
             // Στείλτε το μήνυμα στον server
-            console.log('Στέλνω το μήνυμα:', message);
+            
 
             fetch('https://sms-event.netlify.app/.netlify/functions/send', {
     method: 'POST',
@@ -136,14 +136,16 @@
 })
 .then(response => {
     console.log('Απάντηση από τον server:', response);  // Δες την πλήρη απάντηση εδώ
-    if (response.ok) {  // Αν η απόκριση είναι ok (status 200-299)
-        return response.json(); // Επιστρέφουμε το JSON
-    } else {
-        throw new Error('Σφάλμα κατά την επεξεργασία του αιτήματος');
-    }
+    return response.text();  // Πάρε την απόκριση ως απλό κείμενο πρώτα
 })
-.then(data => {
-    console.log('Απάντηση σε JSON:', data);  // Εδώ βλέπουμε τα δεδομένα σε JSON
+.then(text => {
+    console.log('Απόκριση ως κείμενο:', text);  // Δες το κείμενο της απόκρισης
+    try {
+        const jsonData = JSON.parse(text);  // Προσπάθησε να μετατρέψεις το κείμενο σε JSON
+        console.log('Απάντηση σε JSON:', jsonData); 
+    } catch (e) {
+        console.error('Σφάλμα κατά την ανάλυση της απόκρισης σε JSON:', e);
+    }
     confirmationMessage.textContent = 'Το μήνυμα εστάλη με επιτυχία!';
     confirmationMessage.style.color = '#9b4d96';  // Μοβ για επιτυχία
 })
