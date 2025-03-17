@@ -125,7 +125,7 @@
             const confirmationMessage = document.getElementById('confirmationMessage');
             
             // Στείλτε το μήνυμα στον server
-            fetch('https://sms-event.netlify.app/netlify/functions/send', {
+            fetch('/.netlify/functions/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', // Χρησιμοποιούμε το σωστό Content-Type
