@@ -127,28 +127,32 @@
             // Στείλτε το μήνυμα στον server
             console.log('Στέλνω το μήνυμα:', message);
 
-            fetch('/.netlify/functions/send', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json', // Χρησιμοποιούμε το σωστό Content-Type
-                },
-                body: JSON.stringify({ message: message })  // Στέλνουμε το μήνυμα ως JSON
-            })
-            .then(response => {
-            console.log('Απάντηση από τον server:', response);
-            return response.json();
-            })
+            fetch('https://sms-event.netlify.app/.netlify/functions/send', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json', 
+    },
+    body: JSON.stringify({ message: message }) 
+})
+.then(response => {
+    console.log('Απάντηση από τον server:', response);  // Δες την πλήρη απάντηση εδώ
+    if (response.ok) {  // Αν η απόκριση είναι ok (status 200-299)
+        return response.json(); // Επιστρέφουμε το JSON
+    } else {
+        throw new Error('Σφάλμα κατά την επεξεργασία του αιτήματος');
+    }
+})
+.then(data => {
+    console.log('Απάντηση σε JSON:', data);  // Εδώ βλέπουμε τα δεδομένα σε JSON
+    confirmationMessage.textContent = 'Το μήνυμα εστάλη με επιτυχία!';
+    confirmationMessage.style.color = '#9b4d96';  // Μοβ για επιτυχία
+})
+.catch(error => {
+    console.error('Σφάλμα:', error);
+    confirmationMessage.textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
+    confirmationMessage.style.color = '#e74c3c';  // Κόκκινο για σφάλμα
+});
 
-            .then(response => response.json()) // Περιμένουμε JSON απάντηση
-            .then(data => {
-                confirmationMessage.textContent = 'Το μήνυμα εστάλη με επιτυχία!';
-                confirmationMessage.style.color = '#9b4d96'; // Μοβ για επιτυχία
-            })
-            .catch(error => {
-                console.error('Σφάλμα:', error);
-                confirmationMessage.textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
-                confirmationMessage.style.color = '#e74c3c'; // Κόκκινο για σφάλμα
-            });
         });
     </script>
 </body>
