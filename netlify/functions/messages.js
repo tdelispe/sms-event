@@ -1,5 +1,3 @@
-// netlify/functions/messages.js
-
 let messages = []; // Ο πίνακας των μηνυμάτων
 
 exports.handler = async function (event, context) {
