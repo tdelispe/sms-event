@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Εμφάνιση Μηνυμάτων</title>
+    <title>Διαχείριση Μηνυμάτων</title>
 </head>
 <body>
     <h1>Μηνύματα που Στάλθηκαν</h1>
@@ -13,7 +13,7 @@
     <script>
         // Λειτουργία για να φορτώσουμε τα μηνύματα από το backend
         function loadMessages() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/send') // Καλούμε το σωστό GET endpoint για να πάρουμε τα μηνύματα
+            fetch('https://sms-event.netlify.app/.netlify/functions/sent') // Εδώ αλλάζει η URL σε /sent
                 .then(response => response.json())
                 .then(data => {
                     const messagesDiv = document.getElementById('messages');
@@ -25,10 +25,24 @@
                     if (messages.length === 0) {
                         messagesDiv.innerHTML = 'Δεν υπάρχουν μηνύματα';
                     } else {
-                        // Εμφάνιση των μηνυμάτων
-                        messages.forEach(message => {
+                        // Εμφάνιση των μηνυμάτων με κουμπιά αποδοχής και απόρριψης
+                        messages.forEach((message, index) => {
                             const messageElement = document.createElement('div');
                             messageElement.textContent = message;
+
+                            // Δημιουργία κουμπιών για αποδοχή και απόρριψη
+                            const acceptButton = document.createElement('button');
+                            acceptButton.textContent = 'Αποδοχή';
+                            acceptButton.onclick = function() { handleDecision(index, 'accept'); };
+
+                            const rejectButton = document.createElement('button');
+                            rejectButton.textContent = 'Απόρριψη';
+                            rejectButton.onclick = function() { handleDecision(index, 'reject'); };
+
+                            // Προσθήκη κουμπιών κάτω από το μήνυμα
+                            messageElement.appendChild(acceptButton);
+                            messageElement.appendChild(rejectButton);
+
                             messagesDiv.appendChild(messageElement);
                         });
                     }
@@ -37,6 +51,34 @@
                     console.error('Σφάλμα:', error);
                     document.getElementById('messages').textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
                 });
+        }
+
+        // Συνάρτηση για χειρισμό της απόφασης (Αποδοχή ή Απόρριψη)
+        function handleDecision(messageIndex, decision) {
+            const message = document.getElementById('messages').children[messageIndex].textContent;
+
+            // Στέλνουμε το μήνυμα με την απόφαση στον server
+            fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision', { // Εδώ παραμένει η URL της απόφασης
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    decision: decision
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Η απόφαση καταχωρήθηκε επιτυχώς');
+                    // Επανεκκίνηση της φόρτωσης των μηνυμάτων για να ανανεωθεί η λίστα
+                    loadMessages();
+                }
+            })
+            .catch(error => {
+                console.error('Σφάλμα:', error);
+            });
         }
 
         // Φορτώνουμε τα μηνύματα όταν ανοίξει η σελίδα
