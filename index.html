@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ημέρα της Μητέρας - Στείλτε το Μήνυμά σας</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .logo {
+            margin-bottom: 10px;
+        }
+
+        .logo img {
+            width: 80%; /* Μπορείς να αλλάξεις το μέγεθος ανάλογα με το λογότυπο */
+            height: auto;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #9b4d96; /* Μοβ - θυμίζει την Sephora */
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input[type="text"] {
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid #9b4d96;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #d4a5a5; /* Ανοιχτό ροζ */
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1.2em;
+            background-color: #9b4d96;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #d4a5a5; /* Ανοιχτό ροζ */
+        }
+
+        .message {
+            font-size: 1.3em;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Λογότυπο -->
+        <div class="logo">
+            <img src="Sephora-Logo.jpg" alt="Logo">
+        </div>
+
+        <h1>Ημέρα της Μητέρας</h1>
+        <p>Στείλτε το μήνυμά σας για τη γιορτή της μητέρας και κάντε τη στιγμή ξεχωριστή!</p>
+        <form id="messageForm">
+            <input type="text" id="message" name="message" placeholder="Γράψτε το μήνυμά σας..." required>
+            <button type="submit">Στείλτε το Μήνυμα</button>
+        </form>
+        <div class="message" id="confirmationMessage"></div>
+    </div>
+
+    <script>
+        document.getElementById('messageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const message = document.getElementById('message').value;
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            
+            // Στείλτε το μήνυμα στον server (Node.js backend)
+            fetch('http://localhost:3000/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `message=${message}`
+            })
+            .then(response => response.text())
+            .then(data => {
+                confirmationMessage.textContent = 'Το μήνυμα εστάλη με επιτυχία!';
+                confirmationMessage.style.color = '#9b4d96'; // Μοβ επιβεβαίωση
+            })
+            .catch(error => {
+                console.error('Σφάλμα:', error);
+                confirmationMessage.textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
+                confirmationMessage.style.color = '#e74c3c'; // Κόκκινο για σφάλμα
+            });
+        });
+    </script>
+</body>
+</html>
