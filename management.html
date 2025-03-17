@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Διαχείριση Μηνυμάτων</title>
+</head>
+<body>
+    <h1>Διαχείριση Μηνυμάτων</h1>
+    <div id="messages"></div>
+
+    <script>// Καταναλώνουμε το /messages GET endpoint για να πάρουμε τα μηνύματα
+        fetch('/.netlify/functions/messages')
+            .then(response => response.json())
+            .then(data => {
+                const messagesDiv = document.getElementById('messages');
+                const messages = data.messages;
+
+                if (messages.length === 0) {
+                    messagesDiv.innerHTML = 'Δεν υπάρχουν μηνύματα';
+                } else {
+                    messages.forEach(message => {
+                        const messageElement = document.createElement('div');
+                        messageElement.textContent = message;
+                        messagesDiv.appendChild(messageElement);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Σφάλμα:', error);
+                document.getElementById('messages').textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
+            });</script>
+</body>
+</html>
