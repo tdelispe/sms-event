@@ -13,7 +13,7 @@
     <script>
         // Λειτουργία για να φορτώσουμε τα μηνύματα από το backend
         function loadMessages() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/messages') // Καλούμε το σωστό GET endpoint για να πάρουμε τα μηνύματα
+            fetch('https://sms-event.netlify.app/.netlify/functions/send') // Καλούμε το σωστό GET endpoint για να πάρουμε τα μηνύματα
                 .then(response => response.json())
                 .then(data => {
                     const messagesDiv = document.getElementById('messages');
