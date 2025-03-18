@@ -3,46 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Μηνύματα</title>
+    <title>Αποδεκτές Αποφάσεις</title>
 </head>
 <body>
-    <h1>Μηνύματα</h1>
-    
-    <div id="decisions"></div>
+    <h1>Αποδεκτές Αποφάσεις</h1>
+    <div id="acceptedMessages"></div>
 
     <script>
-        function loadDecisions() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/manageDecisions')
+        function loadAcceptedMessages() {
+            fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision')
                 .then(response => response.json())
                 .then(data => {
-                    const decisionsDiv = document.getElementById('decisions');
-                    const decisions = data.decisions;
+                    const acceptedDiv = document.getElementById('acceptedMessages');
+                    const messages = data.decisions || [];
 
-                    // Καθαρίζουμε τις προηγούμενες αποφάσεις
-                    decisionsDiv.innerHTML = '';
+                    acceptedDiv.innerHTML = '';
 
-                    if (!decisions || decisions.length === 0) {
-                        decisionsDiv.innerHTML = 'Δεν υπάρχουν αποδεκτές αποφάσεις';
+                    if (messages.length === 0) {
+                        acceptedDiv.innerHTML = '<p>Δεν υπάρχουν αποδεκτές αποφάσεις</p>';
                     } else {
-                        // Εμφάνιση των αποδεκτών αποφάσεων
-                        decisions.forEach((decision) => {
-                            const decisionElement = document.createElement('div');
-                            decisionElement.textContent = decision.message ?? "(Χωρίς περιεχόμενο)"; 
-                            decisionsDiv.appendChild(decisionElement);
+                        messages.forEach(msg => {
+                            const messageElement = document.createElement('div');
+                            messageElement.textContent = msg.message;
+                            acceptedDiv.appendChild(messageElement);
                         });
                     }
                 })
                 .catch(error => {
                     console.error('Σφάλμα:', error);
-                    document.getElementById('decisions').textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
+                    document.getElementById('acceptedMessages').textContent = 'Σφάλμα φόρτωσης.';
                 });
         }
 
-        // Φορτώνουμε τις αποφάσεις όταν ανοίξει η σελίδα
-        loadDecisions();
-
-        // Ανανεώνουμε τις αποφάσεις κάθε 3 δευτερόλεπτα
-        setInterval(loadDecisions, 3000);
+        loadAcceptedMessages();
+        setInterval(loadAcceptedMessages, 3000);
     </script>
 </body>
 </html>
