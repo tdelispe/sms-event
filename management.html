@@ -38,11 +38,11 @@
                             // Δημιουργία κουμπιών για αποδοχή και απόρριψη
                             const acceptButton = document.createElement('button');
                             acceptButton.textContent = 'Αποδοχή';
-                            acceptButton.onclick = function() { handleDecision(index, 'accept', messageElement); };
+                            acceptButton.onclick = function() { handleDecision(message, 'accept'); };
 
                             const rejectButton = document.createElement('button');
                             rejectButton.textContent = 'Απόρριψη';
-                            rejectButton.onclick = function() { handleDecision(index, 'reject', messageElement); };
+                            rejectButton.onclick = function() { handleDecision(message, 'reject'); };
 
                             // Προσθήκη κουμπιών κάτω από το μήνυμα
                             messageElement.appendChild(acceptButton);
@@ -59,11 +59,9 @@
         }
 
         // Συνάρτηση για χειρισμό της απόφασης (Αποδοχή ή Απόρριψη)
-        function handleDecision(messageIndex, decision, messageElement) {
-            const message = messageElement.textContent;
-
-            // Στέλνουμε το μήνυμα με την απόφαση στον server
-            fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision', {
+        function handleDecision(message, decision) {
+            // Στέλνουμε το μήνυμα και την απόφαση στον server
+            fetch('https://sms-event.netlify.app/.netlify/functions/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -77,8 +75,8 @@
             .then(data => {
                 if (data.success) {
                     console.log('Η απόφαση καταχωρήθηκε επιτυχώς');
-                    // Αφαιρούμε το μήνυμα από την οθόνη μόλις ληφθεί η απόφαση
-                    messageElement.remove();
+                    // Επανεκκίνηση της φόρτωσης των μηνυμάτων για να ανανεωθεί η λίστα
+                    loadMessages();
                 }
             })
             .catch(error => {
