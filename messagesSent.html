@@ -11,9 +11,8 @@
     <div id="decisions"></div>
 
     <script>
-        // Λειτουργία για να φορτώσουμε τις αποδεκτές αποφάσεις από τον server
         function loadDecisions() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/manageDecisions')  // Εδώ η URL για να πάρεις τις αποδεκτές αποφάσεις
+            fetch('https://sms-event.netlify.app/.netlify/functions/manageDecisions')
                 .then(response => response.json())
                 .then(data => {
                     const decisionsDiv = document.getElementById('decisions');
@@ -22,14 +21,13 @@
                     // Καθαρίζουμε τις προηγούμενες αποφάσεις
                     decisionsDiv.innerHTML = '';
 
-                    if (decisions.length === 0) {
+                    if (!decisions || decisions.length === 0) {
                         decisionsDiv.innerHTML = 'Δεν υπάρχουν αποδεκτές αποφάσεις';
                     } else {
                         // Εμφάνιση των αποδεκτών αποφάσεων
-                        decisions.forEach((decision, index) => {
+                        decisions.forEach((decision) => {
                             const decisionElement = document.createElement('div');
-                            decisionElement.textContent = `${decision.message}`;
-
+                            decisionElement.textContent = decision.message ?? "(Χωρίς περιεχόμενο)"; 
                             decisionsDiv.appendChild(decisionElement);
                         });
                     }
@@ -40,11 +38,11 @@
                 });
         }
 
-        // Φορτώνουμε τις αποδεκτές αποφάσεις όταν ανοίξει η σελίδα
+        // Φορτώνουμε τις αποφάσεις όταν ανοίξει η σελίδα
         loadDecisions();
 
         // Ανανεώνουμε τις αποφάσεις κάθε 3 δευτερόλεπτα
-        setInterval(loadDecisions, 3000); // 3000 ms = 3 δευτερόλεπτα
+        setInterval(loadDecisions, 3000);
     </script>
 </body>
 </html>
