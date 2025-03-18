@@ -1,33 +1,27 @@
-let acceptedMessages = []; // Θα χρησιμοποιήσουμε αυτή τη λίστα για να κρατάμε τις αποδεκτές αποφάσεις
+let acceptedMessages = []; // Κρατάμε μόνο τα μηνύματα
 
 exports.handler = async function (event, context) {
-    // Ελέγχουμε αν το αίτημα είναι τύπου POST
     if (event.httpMethod === 'POST') {
         try {
-            // Αναλύουμε το σώμα του αιτήματος
             const body = JSON.parse(event.body);
             const { message, decision } = body;
 
-            // Αν η απόφαση είναι Αποδοχή, αποθηκεύουμε το μήνυμα στη λίστα
             if (decision === 'accept') {
-                acceptedMessages.push({ message: message, decision: 'Αποδοχή' });
+                acceptedMessages.push(message); // Αποθηκεύουμε μόνο το μήνυμα
             }
 
-            // Αν η απόφαση είναι Απόρριψη, αφαιρούμε το μήνυμα από τη λίστα
             if (decision === 'reject') {
-                acceptedMessages = acceptedMessages.filter(msg => msg.message !== message);
+                acceptedMessages = acceptedMessages.filter(msg => msg !== message);
             }
 
-            // Επιστρέφουμε μια επιτυχία
             return {
                 statusCode: 200,
                 body: JSON.stringify({
                     success: true,
-                    message: `Η απόφαση για το μήνυμα '${message}' καταχωρήθηκε επιτυχώς ως '${decision}'`
+                    message: `Η απόφαση για το μήνυμα καταχωρήθηκε επιτυχώς`
                 })
             };
         } catch (error) {
-            // Αν υπάρχει σφάλμα, επιστρέφουμε μήνυμα σφάλματος
             return {
                 statusCode: 500,
                 body: JSON.stringify({
@@ -37,16 +31,14 @@ exports.handler = async function (event, context) {
             };
         }
     } else if (event.httpMethod === 'GET') {
-        // Αν το αίτημα είναι GET, επιστρέφουμε τις αποδεκτές αποφάσεις
         return {
             statusCode: 200,
             body: JSON.stringify({
                 success: true,
-                decisions: acceptedMessages // Επιστρέφουμε μόνο τις αποδεκτές αποφάσεις
+                decisions: acceptedMessages // Επιστρέφουμε μόνο τα μηνύματα
             })
         };
     } else {
-        // Αν το αίτημα δεν είναι POST ή GET, επιστρέφουμε 405 (Method Not Allowed)
         return {
             statusCode: 405,
             body: JSON.stringify({
