@@ -63,7 +63,7 @@ function handleDecision(message, decision) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            message: message.id,  // Στέλνουμε το ID του μηνύματος
+            messageId: message.id,  // Στέλνουμε το ID του μηνύματος
             decision: decision
         })
     })
