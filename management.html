@@ -77,8 +77,9 @@
             .then(data => {
                 if (data.success) {
                     console.log('Η απόφαση καταχωρήθηκε επιτυχώς');
-                    // Επανεκκίνηση της φόρτωσης των μηνυμάτων για να ανανεωθεί η λίστα
-                    loadMessages();
+                    // Αφαιρούμε το μήνυμα από το DOM
+                    const messagesDiv = document.getElementById('messages');
+                    messagesDiv.removeChild(messagesDiv.children[messageIndex]);
                 }
             })
             .catch(error => {
