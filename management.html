@@ -55,7 +55,8 @@
 
 
         // Συνάρτηση για χειρισμό της απόφασης
-        function handleDecision(message, decision) {
+        // Συνάρτηση για χειρισμό της απόφασης
+function handleDecision(message, decision) {
     fetch('https://sms-event.netlify.app/.netlify/functions/send', {
         method: 'POST',
         headers: {
@@ -69,42 +70,38 @@
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            console.log('Η απόφαση καταχωρήθηκε επιτυχώς');
-            // Επανεκκίνηση της φόρτωσης των μηνυμάτων για να ανανεωθεί η λίστα
-            loadMessages();
-        }
-    })
-    .catch(error => {
-        console.error('Σφάλμα:', error);
-    });
+            console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο send');
 
-        // Αποστολή της απόφασης στο messagesSend
-            fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision', {
+            // Τώρα που ολοκληρώθηκε η πρώτη, κάνε τη δεύτερη fetch
+            return fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    messageId: message.id,  // Στέλνουμε το ID για να ξέρουμε ποιο μήνυμα επεξεργαζόμαστε
+                    messageId: message.id,
                     decision: decision
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο messagesDecisions');
-                    // Επανεκκίνηση της φόρτωσης των μηνυμάτων για να ανανεωθεί η λίστα
-                    loadMessages();
-                }
-            })
-            .catch(error => {
-                console.error('Σφάλμα κατά την αποστολή στην messagesSend:', error);
             });
-        
-
-
-
-            
+        } else {
+            throw new Error('Η αποστολή στο send απέτυχε');
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο messagesDecision');
+        } else {
+            throw new Error('Η αποστολή στο messagesDecision απέτυχε');
+        }
+    })
+    .catch(error => {
+        console.error('Σφάλμα:', error);
+    })
+    .finally(() => {
+        // Κάνε ανανέωση των μηνυμάτων **μόνο μία φορά**
+        loadMessages();
+    });
 }
 
 
