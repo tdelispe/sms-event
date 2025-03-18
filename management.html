@@ -57,55 +57,54 @@
         // Συνάρτηση για χειρισμό της απόφασης
         // Συνάρτηση για χειρισμό της απόφασης
 function handleDecision(message, decision) {
-        // Αποστολή της απόφασης στο send.js
-        fetch('https://sms-event.netlify.app/.netlify/functions/send', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                messageId: message.id,  // Στέλνουμε το ID του μηνύματος
-                decision: decision
-            })
+    fetch('https://sms-event.netlify.app/.netlify/functions/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            messageId: message.id,  // Στέλνουμε το ID του μηνύματος
+            decision: decision
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο send');
-                // Ενημερώνουμε το localStorage με την απόφαση
-                updateLocalStorage(message, decision);
-            } else {
-                throw new Error('Η αποστολή στο send απέτυχε');
-            }
-        })
-        .catch(error => {
-            console.error('Σφάλμα:', error);
-        });
-    }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο send');
 
-        function updateLocalStorage(message, decision) {
-        // Λαμβάνουμε τα μηνύματα από το localStorage (αν υπάρχουν)
-        let messages = JSON.parse(localStorage.getItem('messages') || '[]');
-
-        // Ενημερώνουμε τα μηνύματα με την απόφαση
-        const messageIndex = messages.findIndex(msg => msg.id === message.id);
-        if (messageIndex !== -1) {
-            messages[messageIndex].decision = decision;
+            // Τώρα που ολοκληρώθηκε η πρώτη, κάνε τη δεύτερη fetch
+            return fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message.message,
+                    decision: decision
+                })
+            });
         } else {
-            messages.push({ id: message.id, message: message.message, decision: decision });
+            throw new Error('Η αποστολή στο send απέτυχε');
         }
-
-        // Αποθηκεύουμε το ενημερωμένο array στο localStorage
-        localStorage.setItem('messages', JSON.stringify(messages));
-
-        // (Προαιρετικά) Ενημέρωση της εμφάνισης των μηνυμάτων
-        console.log('Τα μηνύματα αποθηκεύτηκαν στο localStorage');
-        // Αν θες να ανανεώσεις τη σελίδα με τα μηνύματα:
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο messagesDecision');
+        } else {
+            throw new Error('Η αποστολή στο messagesDecision απέτυχε');
+        }
+    })
+    .catch(error => {
+        console.error('Σφάλμα:', error);
+    })
+    .finally(() => {
+        // Κάνε ανανέωση των μηνυμάτων **μόνο μία φορά**
         loadMessages();
-    }
+    });
+}
 
 
-        
         // Φορτώνουμε τα μηνύματα όταν ανοίξει η σελίδα
         loadMessages();
         // Ανανεώνουμε τις αποφάσεις κάθε 3 δευτερόλεπτα
