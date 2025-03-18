@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Αποφάσεις Μηνυμάτων</title>
+</head>
+<body>
+    <h1>Αποφάσεις Μηνυμάτων</h1>
+
+    <div id="decisions"></div>
+
+    <script>// Λειτουργία για να φορτώσουμε τις αποφάσεις των μηνυμάτων από τον server
+        function loadDecisions() {
+            fetch('https://sms-event.netlify.app/.netlify/functions/getDecisions')  // Εδώ η URL για να πάρεις τις αποφάσεις
+                .then(response => response.json())
+                .then(data => {
+                    const decisionsDiv = document.getElementById('decisions');
+                    const decisions = data.decisions;
+
+                    // Καθαρίζουμε τις προηγούμενες αποφάσεις
+                    decisionsDiv.innerHTML = '';
+
+                    if (decisions.length === 0) {
+                        decisionsDiv.innerHTML = 'Δεν υπάρχουν αποφάσεις';
+                    } else {
+                        // Εμφάνιση των αποφάσεων
+                        decisions.forEach((decision, index) => {
+                            const decisionElement = document.createElement('div');
+                            decisionElement.textContent = `Μήνυμα: ${decision.message} - Απόφαση: ${decision.decision}`;
+
+                            decisionsDiv.appendChild(decisionElement);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Σφάλμα:', error);
+                    document.getElementById('decisions').textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
+                });
+        }
+
+        // Φορτώνουμε τις αποφάσεις όταν ανοίξει η σελίδα
+        loadDecisions();
+
+        // Ανανεώνουμε τις αποφάσεις κάθε 3 δευτερόλεπτα
+        setInterval(loadDecisions, 3000); // 3000 ms = 3 δευτερόλεπτα</script>
+</body>
+</html>
