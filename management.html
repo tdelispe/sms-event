@@ -4,16 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Διαχείριση Μηνυμάτων</title>
+    <style>
+        button {
+            margin: 5px;
+        }
+    </style>
 </head>
 <body>
     <h1>Μηνύματα που Στάλθηκαν</h1>
-
+    
     <div id="messages"></div>
 
     <script>
-        // Λειτουργία για να φορτώσουμε τα μηνύματα από το backend
+        // Λειτουργία για να φορτώσουμε τα μηνύματα από τον server
         function loadMessages() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/send') // Εδώ αλλάζει η URL σε /sent
+            fetch('https://sms-event.netlify.app/.netlify/functions/send')  // Εδώ η URL για να πάρεις τα μηνύματα
                 .then(response => response.json())
                 .then(data => {
                     const messagesDiv = document.getElementById('messages');
@@ -58,7 +63,7 @@
             const message = document.getElementById('messages').children[messageIndex].textContent;
 
             // Στέλνουμε το μήνυμα με την απόφαση στον server
-            fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision', { // Εδώ παραμένει η URL της απόφασης
+            fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
