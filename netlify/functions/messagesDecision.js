@@ -1,4 +1,4 @@
-let acceptedMessages = []; // Κρατάμε μόνο τα μηνύματα
+let acceptedMessages = [];  // Κρατάμε μόνο τα μηνύματα, χωρίς την απόφαση
 
 exports.handler = async function (event, context) {
     if (event.httpMethod === 'POST') {
@@ -6,11 +6,14 @@ exports.handler = async function (event, context) {
             const body = JSON.parse(event.body);
             const { message, decision } = body;
 
+            // Αποδεχόμαστε μόνο τα μηνύματα, ανεξαρτήτως απόφασης
             if (decision === 'accept') {
-                acceptedMessages.push(message); // Αποθηκεύουμε μόνο το μήνυμα
+                // Αποθηκεύουμε μόνο το μήνυμα χωρίς να κρατάμε το decision
+                acceptedMessages.push(message);
             }
 
             if (decision === 'reject') {
+                // Αφαιρούμε το μήνυμα αν έχει γίνει απόρριψη
                 acceptedMessages = acceptedMessages.filter(msg => msg !== message);
             }
 
@@ -35,7 +38,7 @@ exports.handler = async function (event, context) {
             statusCode: 200,
             body: JSON.stringify({
                 success: true,
-                decisions: acceptedMessages // Επιστρέφουμε μόνο τα μηνύματα
+                acceptedMessages: acceptedMessages  // Επιστρέφουμε μόνο τα αποδεκτά μηνύματα
             })
         };
     } else {
