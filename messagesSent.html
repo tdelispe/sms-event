@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Αποφάσεις Μηνυμάτων</title>
+    <title>Μηνύματα</title>
 </head>
 <body>
-    <h1>Αποφάσεις Μηνυμάτων</h1>
-
+    <h1>Μηνύματα</h1>
+    
     <div id="decisions"></div>
 
-    <script>// Λειτουργία για να φορτώσουμε τις αποφάσεις των μηνυμάτων από τον server
+    <script>
+        // Λειτουργία για να φορτώσουμε τις αποδεκτές αποφάσεις από τον server
         function loadDecisions() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision')  // Εδώ η URL για να πάρεις τις αποφάσεις
+            fetch('https://sms-event.netlify.app/.netlify/functions/manageDecisions')  // Εδώ η URL για να πάρεις τις αποδεκτές αποφάσεις
                 .then(response => response.json())
                 .then(data => {
                     const decisionsDiv = document.getElementById('decisions');
@@ -22,9 +23,9 @@
                     decisionsDiv.innerHTML = '';
 
                     if (decisions.length === 0) {
-                        decisionsDiv.innerHTML = 'Δεν υπάρχουν αποφάσεις';
+                        decisionsDiv.innerHTML = 'Δεν υπάρχουν αποδεκτές αποφάσεις';
                     } else {
-                        // Εμφάνιση των αποφάσεων
+                        // Εμφάνιση των αποδεκτών αποφάσεων
                         decisions.forEach((decision, index) => {
                             const decisionElement = document.createElement('div');
                             decisionElement.textContent = `Μήνυμα: ${decision.message} - Απόφαση: ${decision.decision}`;
@@ -39,10 +40,11 @@
                 });
         }
 
-        // Φορτώνουμε τις αποφάσεις όταν ανοίξει η σελίδα
+        // Φορτώνουμε τις αποδεκτές αποφάσεις όταν ανοίξει η σελίδα
         loadDecisions();
 
         // Ανανεώνουμε τις αποφάσεις κάθε 3 δευτερόλεπτα
-        setInterval(loadDecisions, 3000); // 3000 ms = 3 δευτερόλεπτα</script>
+        setInterval(loadDecisions, 3000); // 3000 ms = 3 δευτερόλεπτα
+    </script>
 </body>
 </html>
