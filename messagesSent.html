@@ -3,40 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Αποδεκτές Αποφάσεις</title>
+    <title>Αποδεκτά Μηνύματα</title>
 </head>
 <body>
-    <h1>Αποδεκτές Αποφάσεις</h1>
-    <div id="acceptedMessages"></div>
+    <h1>Αποδεκτά Μηνύματα</h1>
+    <div id="accepted-messages"></div>
 
     <script>
+        // Συνάρτηση για να φορτώσουμε τα αποδεκτά μηνύματα
         function loadAcceptedMessages() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision')
+            fetch('https://sms-event.netlify.app/.netlify/functions/makeDecisions')  // Λήψη των αποδεκτών μηνυμάτων
                 .then(response => response.json())
                 .then(data => {
-                    const acceptedDiv = document.getElementById('acceptedMessages');
-                    const messages = data.decisions || [];
+                    const messagesDiv = document.getElementById('accepted-messages');
+                    const messages = data.acceptedMessages;  // Τα μηνύματα που αποδέχτηκαν
 
-                    acceptedDiv.innerHTML = '';
+                    // Καθαρίζουμε την περιοχή εμφάνισης για νέα μηνύματα
+                    messagesDiv.innerHTML = '';
 
                     if (messages.length === 0) {
-                        acceptedDiv.innerHTML = '<p>Δεν υπάρχουν αποδεκτές αποφάσεις</p>';
+                        messagesDiv.innerHTML = 'Δεν υπάρχουν αποδεκτά μηνύματα';
                     } else {
-                        messages.forEach(msg => {
+                        // Εμφάνιση των αποδεκτών μηνυμάτων
+                        messages.forEach((message) => {
                             const messageElement = document.createElement('div');
-                            messageElement.textContent = msg.message;
-                            acceptedDiv.appendChild(messageElement);
+                            messageElement.textContent = message;  // Εμφάνιση μόνο του μηνύματος
+
+                            messagesDiv.appendChild(messageElement);
                         });
                     }
                 })
                 .catch(error => {
                     console.error('Σφάλμα:', error);
-                    document.getElementById('acceptedMessages').textContent = 'Σφάλμα φόρτωσης.';
+                    document.getElementById('accepted-messages').textContent = 'Σφάλμα κατά την φόρτωση των μηνυμάτων.';
                 });
         }
 
+        // Φορτώνουμε τα αποδεκτά μηνύματα όταν ανοίξει η σελίδα
         loadAcceptedMessages();
-        setInterval(loadAcceptedMessages, 3000);
+
+        // Ανανεώνουμε τα μηνύματα κάθε 5 δευτερόλεπτα
+        setInterval(loadAcceptedMessages, 5000); // 5000 ms = 5 δευτερόλεπτα
     </script>
 </body>
 </html>
