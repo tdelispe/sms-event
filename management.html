@@ -4,21 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Διαχείριση Μηνυμάτων</title>
-    <style>
-        button {
-            margin: 5px;
-        }
-    </style>
 </head>
 <body>
-    <h1>Μηνύματα που Στάλθηκαν</h1>
-    
+    <h1>Διαχείριση Μηνυμάτων</h1>
     <div id="messages"></div>
 
     <script>
-        // Λειτουργία για να φορτώσουμε τα μηνύματα από τον server
+        // Λειτουργία για να φορτώσουμε τα μηνύματα
         function loadMessages() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/send')  // Εδώ η URL για να πάρεις τα μηνύματα
+            fetch('https://sms-event.netlify.app/.netlify/functions/send')  // Λαμβάνουμε τα μηνύματα
                 .then(response => response.json())
                 .then(data => {
                     const messagesDiv = document.getElementById('messages');
@@ -31,9 +25,9 @@
                         messagesDiv.innerHTML = 'Δεν υπάρχουν μηνύματα';
                     } else {
                         // Εμφάνιση των μηνυμάτων με κουμπιά αποδοχής και απόρριψης
-                        messages.forEach((message, index) => {
+                        messages.forEach((message) => {
                             const messageElement = document.createElement('div');
-                            messageElement.textContent = message;
+                            messageElement.textContent = message.message;
 
                             // Δημιουργία κουμπιών για αποδοχή και απόρριψη
                             const acceptButton = document.createElement('button');
@@ -54,41 +48,58 @@
                 })
                 .catch(error => {
                     console.error('Σφάλμα:', error);
-                    document.getElementById('messages').textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
                 });
         }
 
-        // Συνάρτηση για χειρισμό της απόφασης (Αποδοχή ή Απόρριψη)
+        // Συνάρτηση για χειρισμό της απόφασης
         function handleDecision(message, decision) {
-            // Στέλνουμε το μήνυμα και την απόφαση στον server
+            // Αποστολή της απόφασης στο send.js
             fetch('https://sms-event.netlify.app/.netlify/functions/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    message: message,
+                    messageId: message.id,  // Στέλνουμε το ID για να ξέρουμε ποιο μήνυμα επεξεργαζόμαστε
                     decision: decision
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log('Η απόφαση καταχωρήθηκε επιτυχώς');
+                    console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο send.js');
+                }
+            })
+            .catch(error => {
+                console.error('Σφάλμα κατά την αποστολή στην send.js:', error);
+            });
+
+            // Αποστολή της απόφασης στο messagesSend
+            fetch('https://sms-event.netlify.app/.netlify/functions/messagesSend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    messageId: message.id,  // Στέλνουμε το ID για να ξέρουμε ποιο μήνυμα επεξεργαζόμαστε
+                    decision: decision
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο messagesSend');
                     // Επανεκκίνηση της φόρτωσης των μηνυμάτων για να ανανεωθεί η λίστα
                     loadMessages();
                 }
             })
             .catch(error => {
-                console.error('Σφάλμα:', error);
+                console.error('Σφάλμα κατά την αποστολή στην messagesSend:', error);
             });
         }
 
         // Φορτώνουμε τα μηνύματα όταν ανοίξει η σελίδα
         loadMessages();
-
-        // Ανανεώνουμε τα μηνύματα κάθε 3 δευτερόλεπτα
-        setInterval(loadMessages, 3000); // 3000 ms = 3 δευτερόλεπτα
     </script>
 </body>
 </html>
