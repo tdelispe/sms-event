@@ -15,7 +15,7 @@
             align-items: center;
             height: 100vh;
         }
-        
+
         .container {
             background-color: #fff;
             padding: 30px;
@@ -116,45 +116,41 @@
     </div>
 
     <script>
-       <!-- JavaScript Code Here -->
-    
         document.getElementById('messageForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const message = document.getElementById('message').value;
             const confirmationMessage = document.getElementById('confirmationMessage');
-            
+            const messageId = Date.now();  // Δημιουργία μοναδικού ID με το χρόνο
+
             // Στείλτε το μήνυμα στον server
-            
-
             fetch('https://sms-event.netlify.app/.netlify/functions/send', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json', 
-    },
-    body: JSON.stringify({ message: message }) 
-})
-.then(response => {
-    console.log('Απάντηση από τον server:', response);  // Δες την πλήρη απάντηση εδώ
-    return response.text();  // Πάρε την απόκριση ως απλό κείμενο πρώτα
-})
-.then(text => {
-    console.log('Απόκριση ως κείμενο:', text);  // Δες το κείμενο της απόκρισης
-    try {
-        const jsonData = JSON.parse(text);  // Προσπάθησε να μετατρέψεις το κείμενο σε JSON
-        console.log('Απάντηση σε JSON:', jsonData); 
-    } catch (e) {
-        console.error('Σφάλμα κατά την ανάλυση της απόκρισης σε JSON:', e);
-    }
-    confirmationMessage.textContent = 'Το μήνυμα εστάλη με επιτυχία!';
-    confirmationMessage.style.color = '#9b4d96';  // Μοβ για επιτυχία
-})
-.catch(error => {
-    console.error('Σφάλμα:', error);
-    confirmationMessage.textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
-    confirmationMessage.style.color = '#e74c3c';  // Κόκκινο για σφάλμα
-});
-
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify({
+                    message: message,
+                    messageId: messageId // Στέλνουμε το ID μαζί με το μήνυμα
+                })
+            })
+            .then(response => response.text())
+            .then(text => {
+                console.log('Απόκριση από τον server:', text); 
+                try {
+                    const jsonData = JSON.parse(text);
+                    console.log('Απάντηση σε JSON:', jsonData);
+                } catch (e) {
+                    console.error('Σφάλμα κατά την ανάλυση της απόκρισης σε JSON:', e);
+                }
+                confirmationMessage.textContent = 'Το μήνυμα εστάλη με επιτυχία!';
+                confirmationMessage.style.color = '#9b4d96';  // Μοβ για επιτυχία
+            })
+            .catch(error => {
+                console.error('Σφάλμα:', error);
+                confirmationMessage.textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
+                confirmationMessage.style.color = '#e74c3c';  // Κόκκινο για σφάλμα
+            });
         });
     </script>
 </body>
