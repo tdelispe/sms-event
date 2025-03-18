@@ -28,7 +28,7 @@
                         // Εμφάνιση των αποδεκτών αποφάσεων
                         decisions.forEach((decision, index) => {
                             const decisionElement = document.createElement('div');
-                            decisionElement.textContent = `Μήνυμα: ${decision.message} - Απόφαση: ${decision.decision}`;
+                            decisionElement.textContent = `${decision.message}`;
 
                             decisionsDiv.appendChild(decisionElement);
                         });
