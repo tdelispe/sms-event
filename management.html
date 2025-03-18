@@ -12,91 +12,73 @@
     <script>
         // Λειτουργία για να φορτώσουμε τα μηνύματα
         function loadMessages() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/send')  // Λαμβάνουμε τα μηνύματα
-                .then(response => response.json())
-                .then(data => {
-                    const messagesDiv = document.getElementById('messages');
-                    const messages = data.messages;
+    fetch('https://sms-event.netlify.app/.netlify/functions/send')  // Λαμβάνουμε τα μηνύματα
+        .then(response => response.json())
+        .then(data => {
+            const messagesDiv = document.getElementById('messages');
+            const messages = data.messages;
 
-                    // Καθαρίζουμε τα προηγούμενα μηνύματα
-                    messagesDiv.innerHTML = '';
+            // Καθαρίζουμε τα προηγούμενα μηνύματα
+            messagesDiv.innerHTML = '';
 
-                    if (messages.length === 0) {
-                        messagesDiv.innerHTML = 'Δεν υπάρχουν μηνύματα';
-                    } else {
-                        // Εμφάνιση των μηνυμάτων με κουμπιά αποδοχής και απόρριψης
-                        messages.forEach((message) => {
-                            const messageElement = document.createElement('div');
-                            messageElement.textContent = message.message;
+            if (messages.length === 0) {
+                messagesDiv.innerHTML = 'Δεν υπάρχουν μηνύματα';
+            } else {
+                // Εμφάνιση των μηνυμάτων με κουμπιά αποδοχής και απόρριψης
+                messages.forEach((message) => {
+                    const messageElement = document.createElement('div');
+                    
+                    // Εμφανίζουμε το μήνυμα σωστά (θα πρέπει να είναι στην ιδιότητα message του αντικειμένου)
+                    messageElement.textContent = message.message;  // Προσθήκη του κειμένου του μηνύματος
 
-                            // Δημιουργία κουμπιών για αποδοχή και απόρριψη
-                            const acceptButton = document.createElement('button');
-                            acceptButton.textContent = 'Αποδοχή';
-                            acceptButton.onclick = function() { handleDecision(message, 'accept'); };
+                    // Δημιουργία κουμπιών για αποδοχή και απόρριψη
+                    const acceptButton = document.createElement('button');
+                    acceptButton.textContent = 'Αποδοχή';
+                    acceptButton.onclick = function() { handleDecision(message, 'accept'); };
 
-                            const rejectButton = document.createElement('button');
-                            rejectButton.textContent = 'Απόρριψη';
-                            rejectButton.onclick = function() { handleDecision(message, 'reject'); };
+                    const rejectButton = document.createElement('button');
+                    rejectButton.textContent = 'Απόρριψη';
+                    rejectButton.onclick = function() { handleDecision(message, 'reject'); };
 
-                            // Προσθήκη κουμπιών κάτω από το μήνυμα
-                            messageElement.appendChild(acceptButton);
-                            messageElement.appendChild(rejectButton);
+                    // Προσθήκη κουμπιών κάτω από το μήνυμα
+                    messageElement.appendChild(acceptButton);
+                    messageElement.appendChild(rejectButton);
 
-                            messagesDiv.appendChild(messageElement);
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Σφάλμα:', error);
+                    messagesDiv.appendChild(messageElement);
                 });
-        }
+            }
+        })
+        .catch(error => {
+            console.error('Σφάλμα:', error);
+        });
+}
+
 
         // Συνάρτηση για χειρισμό της απόφασης
         function handleDecision(message, decision) {
-            // Αποστολή της απόφασης στο send.js
-            fetch('https://sms-event.netlify.app/.netlify/functions/send', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    messageId: message.id,  // Στέλνουμε το ID για να ξέρουμε ποιο μήνυμα επεξεργαζόμαστε
-                    decision: decision
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο send.js');
-                }
-            })
-            .catch(error => {
-                console.error('Σφάλμα κατά την αποστολή στην send.js:', error);
-            });
-
-            // Αποστολή της απόφασης στο messagesSend
-            fetch('https://sms-event.netlify.app/.netlify/functions/messagesSend', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    messageId: message.id,  // Στέλνουμε το ID για να ξέρουμε ποιο μήνυμα επεξεργαζόμαστε
-                    decision: decision
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο messagesSend');
-                    // Επανεκκίνηση της φόρτωσης των μηνυμάτων για να ανανεωθεί η λίστα
-                    loadMessages();
-                }
-            })
-            .catch(error => {
-                console.error('Σφάλμα κατά την αποστολή στην messagesSend:', error);
-            });
+    fetch('https://sms-event.netlify.app/.netlify/functions/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            messageId: message.id,  // Στέλνουμε το ID του μηνύματος
+            decision: decision
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Η απόφαση καταχωρήθηκε επιτυχώς');
+            // Επανεκκίνηση της φόρτωσης των μηνυμάτων για να ανανεωθεί η λίστα
+            loadMessages();
         }
+    })
+    .catch(error => {
+        console.error('Σφάλμα:', error);
+    });
+}
+
 
         // Φορτώνουμε τα μηνύματα όταν ανοίξει η σελίδα
         loadMessages();
