@@ -3,47 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Αποδεκτά Μηνύματα</title>
+    <title>Μηνύματα - Sephora</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #fff5f5; }
+        #messages { margin-top: 20px; font-size: 24px; color: #333; }
+        .message-item { padding: 15px; border-bottom: 1px solid #ccc; margin: 10px auto; width: 60%; background: #fff; font-style: italic; }
+        img { width: 150px; margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <h1>Αποδεκτά Μηνύματα</h1>
-    <div id="accepted-messages"></div>
-
+    <img src="Sephora-Logo.png" alt="Sephora Logo">
+    <h1>Μηνύματα για τη Γιορτή της Μητέρας</h1>
+    <div id="messages"></div>
     <script>
-        // Συνάρτηση για να φορτώσουμε τα αποδεκτά μηνύματα
-        function loadAcceptedMessages() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/makeDecisions')  // Λήψη των αποδεκτών μηνυμάτων
-                .then(response => response.json())
-                .then(data => {
-                    const messagesDiv = document.getElementById('accepted-messages');
-                    const messages = data.acceptedMessages;  // Τα μηνύματα που αποδέχτηκαν
+        function fetchApprovedMessages() {
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const approvedMessages = messages.filter(msg => msg.approved);
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '';
 
-                    // Καθαρίζουμε την περιοχή εμφάνισης για νέα μηνύματα
-                    messagesDiv.innerHTML = '';
-
-                    if (messages.length === 0) {
-                        messagesDiv.innerHTML = 'Δεν υπάρχουν αποδεκτά μηνύματα';
-                    } else {
-                        // Εμφάνιση των αποδεκτών μηνυμάτων
-                        messages.forEach((message) => {
-                            const messageElement = document.createElement('div');
-                            messageElement.textContent = message;  // Εμφάνιση μόνο του μηνύματος
-
-                            messagesDiv.appendChild(messageElement);
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Σφάλμα:', error);
-                    document.getElementById('accepted-messages').textContent = 'Σφάλμα κατά την φόρτωση των μηνυμάτων.';
-                });
+            approvedMessages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = 'message-item';
+                div.innerText = msg.text;
+                messagesDiv.appendChild(div);
+            });
         }
 
-        // Φορτώνουμε τα αποδεκτά μηνύματα όταν ανοίξει η σελίδα
-        loadAcceptedMessages();
-
-        // Ανανεώνουμε τα μηνύματα κάθε 5 δευτερόλεπτα
-        setInterval(loadAcceptedMessages, 5000); // 5000 ms = 5 δευτερόλεπτα
+        fetchApprovedMessages();
+        setInterval(fetchApprovedMessages, 10000); // Ανανέωση κάθε 10 δευτερόλεπτα
     </script>
 </body>
 </html>
