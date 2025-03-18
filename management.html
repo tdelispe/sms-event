@@ -79,7 +79,7 @@ function handleDecision(message, decision) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    messageId: message.id,
+                    messageId: message.message,
                     decision: decision
                 })
             });
