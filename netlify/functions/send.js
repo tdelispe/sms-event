@@ -99,7 +99,7 @@ exports.handler = async function (event, context) {
         // Επιστρέφουμε τα αποδεκτά μηνύματα όταν ζητηθούν μέσω GET
         return {
             statusCode: 200,
-            body: JSON.stringify({ acceptedMessages })  // Επιστρέφουμε τα αποδεκτά μηνύματα
+            body: JSON.stringify({ messages, acceptedMessages })  // Επιστρέφουμε και τα μηνύματα και τα αποδεκτά μηνύματα
         };
     } else {
         return {
