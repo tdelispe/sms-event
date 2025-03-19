@@ -80,15 +80,6 @@
             left: 10px;
         }
 
-        .message-container {
-            padding: 20px;
-            background-color: #fff;
-            margin: 10px auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 600px;
-        }
         .message-list {
             position: relative;
             max-height: 80vh;
@@ -103,6 +94,7 @@
 
     <script>
         let activeMessages = []; // Διατήρηση των ενεργών μηνυμάτων
+        let currentMessageIndex = 0; // Ο δείκτης του τελευταίου ενεργού μηνύματος
 
         // Συνάρτηση για την εμφάνιση του μηνύματος με το φάκελο
         function showEnvelopeMessage(text) {
@@ -130,10 +122,8 @@
             document.body.appendChild(envelopeContainer);
             
             // Τοποθετούμε το φάκελο σε νέα θέση
-            const randomTop = `${Math.random() * 60 + 10}%`;
-            const randomLeft = `${Math.random() * 60 + 10}%`;
-            envelopeContainer.style.top = randomTop;
-            envelopeContainer.style.left = randomLeft;
+            envelopeContainer.style.top = `10%`;
+            envelopeContainer.style.left = `40%`;
 
             // Άνοιγμα του φακέλου
             setTimeout(() => {
@@ -154,8 +144,13 @@
                 }, 1000);
             }, 5000); // Ο φάκελος παραμένει για 5 δευτερόλεπτα
 
-            // Διατήρηση του μηνύματος
-            activeMessages.push(message); // Προσθήκη του νέου μηνύματος στον πίνακα
+            // Αντικατάσταση του παλιού μηνύματος με το νέο
+            if (activeMessages[currentMessageIndex]) {
+                activeMessages[currentMessageIndex].remove(); // Αφαίρεση του παλιού μηνύματος
+            }
+
+            activeMessages[currentMessageIndex] = message; // Προσθήκη του νέου μηνύματος
+            currentMessageIndex = (currentMessageIndex + 1) % 5; // Περιορίζουμε την ποσότητα σε 5 μηνύματα
         }
 
         // Φόρτωσε τα αποδεκτά μηνύματα από το backend
@@ -167,16 +162,10 @@
             .then(data => {
                 const messagesList = data.acceptedMessages || []; // Πάρε τα αποδεκτά μηνύματα
                 
-                // Εμφάνισε τα μηνύματα με το σχέδιο του φακέλου
-                const messagesContainer = document.getElementById('messagesList');
-                messagesContainer.innerHTML = ''; // Καθαρίστε το περιεχόμενο πριν προσθέσετε νέα μηνύματα
-
-                if (messagesList.length === 0) {
-                    messagesContainer.innerHTML = '<p>Δεν υπάρχουν αποδεκτά μηνύματα.</p>';
-                } else {
-                    messagesList.forEach(message => {
-                        showEnvelopeMessage(message.message);
-                    });
+                if (messagesList.length > 0) {
+                    // Εμφάνιση του τελευταίου μηνύματος
+                    const lastMessage = messagesList[messagesList.length - 1];
+                    showEnvelopeMessage(lastMessage.message);
                 }
             })
             .catch(error => {
