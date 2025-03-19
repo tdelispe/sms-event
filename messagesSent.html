@@ -76,10 +76,8 @@
             opacity: 0;
             transform: translateY(50px);
             transition: opacity 1s ease-in-out, transform 1s ease-in-out;
-            top: -70px; /* Εμφανίζεται πάνω από τον φάκελο */
-            left: 50%; /* Κεντραρισμένο */
-            transform: translateX(-50%);
-            z-index: 3;
+            top: -70px;
+            left: 10px;
         }
 
         .message-container {
@@ -156,9 +154,9 @@
 
             // Ο φάκελος εξαφανίζεται μετά από 5 δευτερόλεπτα
             setTimeout(() => {
-                envelopeContainer.style.opacity = 0; // Εξαφάνιση του φακέλου
+                envelope.style.opacity = 0; // Εξαφάνιση του φακέλου
                 setTimeout(() => {
-                    envelopeContainer.remove(); // Αφαίρεση του φακέλου
+                    envelope.remove(); // Αφαίρεση του φακέλου
                 }, 1000);
             }, 5000); // Ο φάκελος παραμένει για 5 δευτερόλεπτα
 
