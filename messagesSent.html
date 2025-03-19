@@ -37,10 +37,11 @@
             width: 100%;
             height: 50%;
             background: #d4af37;
-            top: 0;
+            top: 0; /* Αρχικά κλειστό στην κορυφή */
+            left: 0;
             clip-path: polygon(50% 0, 100% 100%, 0 100%);
-            transform-origin: bottom;
-            transform: rotateX(0);
+            transform-origin: bottom center; /* Περιστροφή από τη βάση του τριγώνου */
+            transform: rotateX(-150deg); /* Ξεκινά σε κλειστή θέση */
             transition: transform 1.5s ease-in-out;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             z-index: 2;
@@ -140,6 +141,14 @@
             const offsetY = 10 + messageCount * 20;  // Ενδεικτική τοποθέτηση με βάση τον αριθμό του μηνύματος
             envelopeContainer.style.top = `${offsetY}%`;
             envelopeContainer.style.left = '10%';  // Σταθερή θέση για το μήνυμα (μπορείς να το τροποποιήσεις όπως θέλεις)
+              // Ανοίγει το φάκελο
+            setTimeout(() => {
+                topFlap.style.transform = "rotateX(0deg)"; // Περιστροφή προς τα πάνω για άνοιγμα
+                setTimeout(() => {
+                    message.style.opacity = 1;
+                    message.style.transform = "translateY(0)";
+                }, 1000);
+            }, 1000);
 
             // Άνοιγμα του φακέλου
             setTimeout(() => {
