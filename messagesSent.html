@@ -8,14 +8,12 @@
         body {
             font-family: 'Arial', sans-serif;
             background-color: orange;
-            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
             overflow: hidden;
-            position: relative;
         }
 
         .envelope-container {
@@ -23,7 +21,6 @@
             width: 220px;
             height: 160px;
             perspective: 1000px;
-            transition: opacity 1s ease-in-out;
         }
 
         .envelope {
@@ -39,8 +36,8 @@
             background: #d4af37;
             top: 0;
             clip-path: polygon(50% 0, 100% 100%, 0 100%);
-            transform-origin: top; /* Τοποθετήθηκε στην κορυφή του φακέλου */
-            transform: rotateX(0);
+            transform-origin: top; /* Περιστροφή από την κορυφή */
+            transform: rotateX(0deg);
             transition: transform 1.5s ease-in-out;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             z-index: 2;
@@ -52,15 +49,9 @@
             height: 60%;
             bottom: 0;
             background-color: #8B4513;
-            color: #fff;
             border: 2px solid #fff;
             border-radius: 5px;
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1em;
         }
 
         .message {
@@ -69,74 +60,34 @@
             background-color: black;
             padding: 10px;
             border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            color: white;
             font-size: 1em;
             font-weight: bold;
-            color: white;
             opacity: 0;
             transform: translateY(50px);
             transition: opacity 1s ease-in-out, transform 1s ease-in-out;
             top: -70px;
             left: 10px;
         }
-
-        .message-container {
-            padding: 20px;
-            background-color: #fff;
-            margin: 10px auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 600px;
-        }
-
-        .message-list {
-            position: relative;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
     </style>
 </head>
 <body>
-
-    <div id="messagesList" class="message-list"></div> <!-- Εδώ θα εμφανιστούν τα αποδεκτά μηνύματα -->
+    <div class="envelope-container">
+        <div class="envelope">
+            <div class="envelope-top"></div>
+            <div class="envelope-body"></div>
+        </div>
+        <div class="message">Το μήνυμα σου!</div>
+    </div>
 
     <script>
-        let activeMessages = [];
-        let messageCount = 0;
-
-        function showEnvelopeMessage(text) {
-            const existingEnvelope = document.querySelector('.envelope-container');
-            if (existingEnvelope) {
-                existingEnvelope.remove();
-            }
-
-            const envelopeContainer = document.createElement('div');
-            envelopeContainer.classList.add('envelope-container');
-            
-            const envelope = document.createElement('div');
-            envelope.classList.add('envelope');
-            
-            const topFlap = document.createElement('div');
-            topFlap.classList.add('envelope-top');
-            
-            const bodyPart = document.createElement('div');
-            bodyPart.classList.add('envelope-body');
-            
-            const message = document.createElement('div');
-            message.classList.add('message');
-            message.textContent = text;
-
-            envelope.appendChild(topFlap);
-            envelope.appendChild(bodyPart);
-            envelopeContainer.appendChild(envelope);
-            envelopeContainer.appendChild(message);
-
-            document.body.appendChild(envelopeContainer);
+        function openCloseEnvelope() {
+            const topFlap = document.querySelector('.envelope-top');
+            const message = document.querySelector('.message');
 
             // Άνοιγμα του φακέλου
             setTimeout(() => {
-                topFlap.style.transform = "rotateX(150deg)"; // Ανοίγει προς τα πάνω
+                topFlap.style.transform = "rotateX(150deg)";
                 setTimeout(() => {
                     message.style.opacity = 1;
                     message.style.transform = "translateY(0)";
@@ -145,35 +96,16 @@
 
             // Κλείσιμο του φακέλου
             setTimeout(() => {
-                topFlap.style.transform = "rotateX(0deg)"; // Επιστρέφει στη θέση του
+                topFlap.style.transform = "rotateX(0deg)";
                 setTimeout(() => {
-                    envelope.style.opacity = 0;
-                    setTimeout(() => {
-                        envelope.remove();
-                    }, 1000);
+                    message.style.opacity = 0;
+                    message.style.transform = "translateY(50px)";
                 }, 1000);
             }, 5000);
         }
 
-        function loadAcceptedMessages() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/send', {
-                method: 'GET',
-            })
-            .then(response => response.json())
-            .then(data => {
-                const messagesList = data.acceptedMessages || [];
-                if (messagesList.length > 0) {
-                    const lastMessage = messagesList[messagesList.length - 1];
-                    showEnvelopeMessage(lastMessage.message);
-                }
-            })
-            .catch(error => {
-                console.error('Σφάλμα κατά την φόρτωση των μηνυμάτων:', error);
-            });
-        }
-
-        loadAcceptedMessages();
-        setInterval(loadAcceptedMessages, 5000);
+        // Ενεργοποίηση της συνάρτησης
+        openCloseEnvelope();
     </script>
 </body>
 </html>
