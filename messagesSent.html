@@ -38,7 +38,7 @@
             top: 0;
             clip-path: polygon(50% 0, 100% 100%, 0 100%);
             transform-origin: top; /* Σταθερό σημείο περιστροφής */
-            transform: rotateX(0);
+            transform: rotateX(150deg); /* Αρχικά κλειστός */
             transition: transform 1.5s ease-in-out;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             z-index: 2;
@@ -76,8 +76,8 @@
     <div id="messagesList" class="message-list"></div> <!-- Εδώ θα εμφανιστούν τα αποδεκτά μηνύματα -->
 
     <script>
-        let activeMessages = []; // Διατήρηση των ενεργών μηνυμάτων
-        let messageCount = 0; // Αριθμός μηνυμάτων που έχουν εμφανιστεί
+        let activeMessages = [];
+        let messageCount = 0;
 
         function showEnvelopeMessage(text) {
             // Αφαίρεση του προηγούμενου φακέλου
@@ -109,9 +109,9 @@
             
             document.body.appendChild(envelopeContainer);
 
-            // Άνοιγμα του φακέλου
+            // Άνοιγμα του φακέλου (Αρχικά είναι κλειστός)
             setTimeout(() => {
-                topFlap.style.transform = "rotateX(150deg)"; // Ανοίγει προς τα πάνω
+                topFlap.style.transform = "rotateX(0deg)"; // Ανοίγει
                 setTimeout(() => {
                     message.style.opacity = 1;
                     message.style.transform = "translateY(0)";
@@ -120,10 +120,10 @@
 
             // Κλείσιμο του φακέλου
             setTimeout(() => {
-                topFlap.style.transform = "rotateX(0deg)"; // Επιστροφή στην αρχική θέση
+                message.style.opacity = 0;
+                message.style.transform = "translateY(50px)";
                 setTimeout(() => {
-                    message.style.opacity = 0;
-                    message.style.transform = "translateY(50px)";
+                    topFlap.style.transform = "rotateX(150deg)"; // Επιστρέφει σε κλειστή κατάσταση
                 }, 1000);
             }, 5000);
 
