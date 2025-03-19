@@ -3,35 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Μήνυμα Sephora</title>
+    <title>Αποδεκτά Μηνύματα</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-        }
-        .message-box {
+        /* Στυλ για εμφάνιση των μηνυμάτων */
+        .message-container {
             padding: 20px;
-            border: 2px solid #9b4d96;
+            background-color: #fff;
+            margin: 10px auto;
             border-radius: 10px;
-            display: inline-block;
-            background-color: #f7f7f7;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        .message {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <h1>Το μήνυμά σας</h1>
-    <div class="message-box">
-        <p id="messageDisplay">Φόρτωση μηνύματος...</p>
-    </div>
+    <h1 style="text-align:center; color: #9b4d96;">Αποδεκτά Μηνύματα</h1>
+    
+    <div id="messagesList"></div>  <!-- Εδώ θα εμφανιστούν τα αποδεκτά μηνύματα -->
 
     <script>
-        // Παίρνουμε το μήνυμα από το URL
-        const params = new URLSearchParams(window.location.search);
-        const message = params.get('message');
-        
-        // Το εμφανίζουμε στην σελίδα
-        document.getElementById('messageDisplay').textContent = message || 'Δεν υπάρχει μήνυμα';
+        // Φόρτωσε τα αποδεκτά μηνύματα από το backend
+        function loadAcceptedMessages() {
+            fetch('https://sms-event.netlify.app/.netlify/functions/send', {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messagesList = data.acceptedMessages || []; // Πάρε τα αποδεκτά μηνύματα
+                
+                // Εμφάνισε τα μηνύματα
+                const messagesContainer = document.getElementById('messagesList');
+                messagesContainer.innerHTML = ''; // Καθαρίστε το περιεχόμενο πριν προσθέσετε νέα μηνύματα
+
+                if (messagesList.length === 0) {
+                    messagesContainer.innerHTML = '<p>Δεν υπάρχουν αποδεκτά μηνύματα.</p>';
+                } else {
+                    messagesList.forEach(message => {
+                        const messageElement = document.createElement('div');
+                        messageElement.classList.add('message-container');
+                        messageElement.innerHTML = `<div class="message">${message.message}</div>`;
+                        messagesContainer.appendChild(messageElement);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Σφάλμα κατά την φόρτωση των μηνυμάτων:', error);
+            });
+        }
+
+        // Κάλεσε την συνάρτηση κατά την φόρτωση της σελίδας
+        loadAcceptedMessages();
     </script>
 </body>
 </html>
