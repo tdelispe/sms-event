@@ -125,32 +125,46 @@
 
             // Στείλτε το μήνυμα στον server
             fetch('https://sms-event.netlify.app/.netlify/functions/send', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json', 
-                },
-                body: JSON.stringify({
-                    message: message,
-                    messageId: messageId // Στέλνουμε το ID μαζί με το μήνυμα
-                })
-            })
-            .then(response => response.text())
-            .then(text => {
-                console.log('Απόκριση από τον server:', text); 
-                try {
-                    const jsonData = JSON.parse(text);
-                    console.log('Απάντηση σε JSON:', jsonData);
-                } catch (e) {
-                    console.error('Σφάλμα κατά την ανάλυση της απόκρισης σε JSON:', e);
-                }
-                confirmationMessage.textContent = 'Το μήνυμα εστάλη με επιτυχία!';
-                confirmationMessage.style.color = '#9b4d96';  // Μοβ για επιτυχία
-            })
-            .catch(error => {
-                console.error('Σφάλμα:', error);
-                confirmationMessage.textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
-                confirmationMessage.style.color = '#e74c3c';  // Κόκκινο για σφάλμα
-            });
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        message: message,
+        messageId: messageId
+    })
+})
+.then(response => {
+    // Πριν κάνουμε parse το response, να το ελέγξουμε πρώτα
+    console.log('Απόκριση από τον server:', response);
+    return response.text(); // Λαμβάνουμε την απάντηση ως text για να δούμε τι παίρνουμε
+})
+.then(text => {
+    console.log('Απόκριση κειμένου:', text);  // Ελέγξτε την ακατέργαστη απάντηση εδώ
+    
+    try {
+        // Ελέγχουμε αν το κείμενο ξεκινά με '{' ή '[' (που είναι το αρχικό χαρακτήρα JSON)
+        if (text.startsWith('{') || text.startsWith('[')) {
+            const jsonData = JSON.parse(text);  // Εάν είναι σωστό JSON, το αναλύουμε
+            console.log('Απάντηση σε JSON:', jsonData);
+        } else {
+            // Εάν δεν είναι JSON, το εμφανίζουμε ως απλό κείμενο
+            document.getElementById('confirmationMessage').textContent = `Σφάλμα: ${text}`;
+            document.getElementById('confirmationMessage').style.color = '#e74c3c';  // Κόκκινο για σφάλμα
+        }
+    } catch (e) {
+        console.error('Σφάλμα κατά την ανάλυση της απόκρισης σε JSON:', e);
+        // Εμφανίζουμε το αρχικό κείμενο αν δεν μπορούμε να το μετατρέψουμε σε JSON
+        document.getElementById('confirmationMessage').textContent = `Σφάλμα: ${text}`;
+        document.getElementById('confirmationMessage').style.color = '#e74c3c';  // Κόκκινο για σφάλμα
+    }
+})
+.catch(error => {
+    console.error('Σφάλμα:', error);
+    document.getElementById('confirmationMessage').textContent = 'Κάτι πήγε στραβά. Δοκιμάστε ξανά.';
+    document.getElementById('confirmationMessage').style.color = '#e74c3c';  // Κόκκινο για σφάλμα
+});
+
         });
     </script>
 </body>
