@@ -52,4 +52,59 @@ exports.handler = async function (event, context) {
                 return {
                     statusCode: 400,  // Bad request γιατί δεν επιτρέπεται η ανανέωση του μηνύματος
                     body: JSON.stringify({
-                        success:
+                        success: false,
+                        message: `Το μήνυμα με ID: ${messageId} υπάρχει ήδη και δεν επιτρέπεται να ανανεωθεί.`
+                    })
+                };
+            }
+        }
+        
+        // Αν πρόκειται για την επεξεργασία απόφασης (accept/decline) για κάποιο μήνυμα
+        else if (messageId && decision !== undefined) {
+            const messageIndex = messages.findIndex(msg => msg.id === messageId);
+            if (messageIndex > -1) {
+                if (decision === 'decline') {
+                    // Αν η απόφαση είναι "απόρριψη", διαγράφουμε το μήνυμα
+                    messages.splice(messageIndex, 1);
+                    console.log(`Το μήνυμα με ID: ${messageId} διαγράφηκε λόγω απόρριψης.`);
+                    return {
+                        statusCode: 200,
+                        body: JSON.stringify({
+                            success: true,
+                            message: `Το μήνυμα με ID: ${messageId} διαγράφηκε λόγω απόρριψης.`
+                        })
+                    };
+                } else if (decision === 'accept') {
+                    // Αν η απόφαση είναι "αποδοχή", μεταφέρουμε το μήνυμα στη λίστα acceptedMessages
+                    const acceptedMessage = messages.splice(messageIndex, 1)[0];  // Αφαιρούμε το μήνυμα από την λίστα messages
+                    acceptedMessages.push(acceptedMessage);  // Το προσθέτουμε στη λίστα acceptedMessages
+                    
+                    console.log(`Το μήνυμα με ID: ${messageId} αποδεχτήκαμε και μεταφέρθηκε στη λίστα των αποδεκτών.`);
+                    return {
+                        statusCode: 200,
+                        body: JSON.stringify({
+                            success: true,
+                            message: `Το μήνυμα με ID: ${messageId} αποδεχτήκαμε και μεταφέρθηκε στη λίστα αποδεκτών.`
+                        })
+                    };
+                }
+            } else {
+                return {
+                    statusCode: 404,
+                    body: JSON.stringify({ message: "Το μήνυμα δεν βρέθηκε." })
+                };
+            }
+        }
+    } else if (event.httpMethod === 'GET') {
+        // Επιστρέφουμε τα αποδεκτά μηνύματα όταν ζητηθούν μέσω GET
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ acceptedMessages })  // Επιστρέφουμε τα αποδεκτά μηνύματα
+        };
+    } else {
+        return {
+            statusCode: 405, // Method Not Allowed
+            body: JSON.stringify({ message: "Μόνο POST ή GET αιτήματα υποστηρίζονται" })
+        };
+    }
+};
