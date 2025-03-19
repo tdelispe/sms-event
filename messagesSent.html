@@ -101,30 +101,9 @@
     <div id="messagesList" class="message-list"></div> <!-- Εδώ θα εμφανιστούν τα αποδεκτά μηνύματα -->
 
     <script>
-        let activeMessages = [];
-        const maxMessages = 3; // Όριο αριθμού μηνυμάτων
+        let activeMessages = []; // Διατήρηση των ενεργών μηνυμάτων
 
-        // Φόρτωσε τα αποδεκτά μηνύματα από το backend
-        function loadAcceptedMessages() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/send', {
-                method: 'GET',
-            })
-            .then(response => response.json())
-            .then(data => {
-                const messagesList = data.acceptedMessages || []; // Πάρε τα αποδεκτά μηνύματα
-                
-                // Εμφάνισε το τελευταίο μήνυμα με το σχέδιο του φακέλου
-                if (messagesList.length > 0) {
-                    const messageText = messagesList[messagesList.length - 1].message;
-                    showEnvelopeMessage(messageText);
-                }
-            })
-            .catch(error => {
-                console.error('Σφάλμα κατά την φόρτωση των μηνυμάτων:', error);
-            });
-        }
-
-        // Συνάρτηση για την εμφάνιση των μηνυμάτων με το σχέδιο του φακέλου
+        // Συνάρτηση για την εμφάνιση του μηνύματος με το φάκελο
         function showEnvelopeMessage(text) {
             const envelopeContainer = document.createElement('div');
             envelopeContainer.classList.add('envelope-container');
@@ -157,29 +136,48 @@
             setTimeout(() => {
                 topFlap.style.transform = "rotateX(-150deg)";
                 
+                // Εμφάνιση μηνύματος
                 setTimeout(() => {
                     message.style.opacity = 1;
                     message.style.transform = "translateY(0)";
                 }, 1000);
             }, 1000);
 
-            // Αφαίρεση του φακέλου μετά από 5 δευτερόλεπτα (φύγει ο φάκελος, παραμένει το μήνυμα)
+            // Ο φάκελος φεύγει μετά την εμφάνιση
             setTimeout(() => {
                 envelopeContainer.style.opacity = 0;
                 setTimeout(() => {
                     envelopeContainer.remove(); // Αφαίρεση του φακέλου
                 }, 1000);
-            }, 5000);
+            }, 5000); // Ο φάκελος παραμένει για 5 δευτερόλεπτα
 
-            // Αν έχουμε παραπάνω από το μέγιστο αριθμό μηνυμάτων, αφαίρεσε το παλιότερο
-            activeMessages.push(message);
-            if (activeMessages.length > maxMessages) {
-                const oldMessage = activeMessages.shift();
-                oldMessage.style.opacity = 0; // Κρύψε το παλιό μήνυμα
-                setTimeout(() => {
-                    oldMessage.remove(); // Αφαίρεσέ το από την οθόνη
-                }, 1000);
-            }
+            activeMessages.push(message); // Προσθήκη του νέου μηνύματος στον πίνακα
+        }
+
+        // Φόρτωσε τα αποδεκτά μηνύματα από το backend
+        function loadAcceptedMessages() {
+            fetch('https://sms-event.netlify.app/.netlify/functions/send', {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messagesList = data.acceptedMessages || []; // Πάρε τα αποδεκτά μηνύματα
+                
+                // Εμφάνισε τα μηνύματα με το σχέδιο του φακέλου
+                const messagesContainer = document.getElementById('messagesList');
+                messagesContainer.innerHTML = ''; // Καθαρίστε το περιεχόμενο πριν προσθέσετε νέα μηνύματα
+
+                if (messagesList.length === 0) {
+                    messagesContainer.innerHTML = '<p>Δεν υπάρχουν αποδεκτά μηνύματα.</p>';
+                } else {
+                    messagesList.forEach(message => {
+                        showEnvelopeMessage(message.message);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Σφάλμα κατά την φόρτωση των μηνυμάτων:', error);
+            });
         }
 
         // Κάλεσε την συνάρτηση κατά την φόρτωση της σελίδας
