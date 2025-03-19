@@ -3,35 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Μηνύματα - Sephora</title>
+    <title>Μήνυμα Sephora</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #fff5f5; }
-        #messages { margin-top: 20px; font-size: 24px; color: #333; }
-        .message-item { padding: 15px; border-bottom: 1px solid #ccc; margin: 10px auto; width: 60%; background: #fff; font-style: italic; }
-        img { width: 150px; margin-top: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        .message-box {
+            padding: 20px;
+            border: 2px solid #9b4d96;
+            border-radius: 10px;
+            display: inline-block;
+            background-color: #f7f7f7;
+        }
     </style>
 </head>
 <body>
-    <img src="Sephora-Logo.png" alt="Sephora Logo">
-    <h1>Μηνύματα για τη Γιορτή της Μητέρας</h1>
-    <div id="messages"></div>
+    <h1>Το μήνυμά σας</h1>
+    <div class="message-box">
+        <p id="messageDisplay">Φόρτωση μηνύματος...</p>
+    </div>
+
     <script>
-        function fetchApprovedMessages() {
-            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
-            const approvedMessages = messages.filter(msg => msg.approved);
-            const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML = '';
-
-            approvedMessages.forEach(msg => {
-                const div = document.createElement('div');
-                div.className = 'message-item';
-                div.innerText = msg.text;
-                messagesDiv.appendChild(div);
-            });
-        }
-
-        fetchApprovedMessages();
-        setInterval(fetchApprovedMessages, 10000); // Ανανέωση κάθε 10 δευτερόλεπτα
+        // Παίρνουμε το μήνυμα από το URL
+        const params = new URLSearchParams(window.location.search);
+        const message = params.get('message');
+        
+        // Το εμφανίζουμε στην σελίδα
+        document.getElementById('messageDisplay').textContent = message || 'Δεν υπάρχει μήνυμα';
     </script>
 </body>
 </html>
