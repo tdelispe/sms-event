@@ -8,12 +8,14 @@
         body {
             font-family: 'Arial', sans-serif;
             background-color: orange;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
             overflow: hidden;
+            position: relative;
         }
 
         .envelope-container {
@@ -37,8 +39,8 @@
             background: #d4af37;
             top: 0;
             clip-path: polygon(50% 0, 100% 100%, 0 100%);
-            transform-origin: top; /* Σταθερό σημείο περιστροφής */
-            transform: rotateX(150deg); /* Αρχικά κλειστός */
+            transform-origin: bottom;
+            transform: rotateX(0);
             transition: transform 1.5s ease-in-out;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             z-index: 2;
@@ -50,9 +52,15 @@
             height: 60%;
             bottom: 0;
             background-color: #8B4513;
+            color: #fff;
             border: 2px solid #fff;
             border-radius: 5px;
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1em;
         }
 
         .message {
@@ -61,24 +69,43 @@
             background-color: black;
             padding: 10px;
             border-radius: 10px;
-            color: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             font-size: 1em;
             font-weight: bold;
+            color: white;
             opacity: 0;
             transform: translateY(50px);
             transition: opacity 1s ease-in-out, transform 1s ease-in-out;
             top: -70px;
-            left: 20px;
+            left: 10px;
+        }
+
+        .message-container {
+            padding: 20px;
+            background-color: #fff;
+            margin: 10px auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .message-list {
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
+
     <div id="messagesList" class="message-list"></div> <!-- Εδώ θα εμφανιστούν τα αποδεκτά μηνύματα -->
 
     <script>
-        let activeMessages = [];
-        let messageCount = 0;
+        let activeMessages = []; // Διατήρηση των ενεργών μηνυμάτων
+        let messageCount = 0; // Αριθμός μηνυμάτων που έχουν εμφανιστεί
 
+        // Συνάρτηση για την εμφάνιση του τελευταίου μηνύματος με το φάκελο
         function showEnvelopeMessage(text) {
             // Αφαίρεση του προηγούμενου φακέλου
             const existingEnvelope = document.querySelector('.envelope-container');
@@ -108,26 +135,32 @@
             envelopeContainer.appendChild(message);
             
             document.body.appendChild(envelopeContainer);
+            
+            // Καθορισμένη θέση για το κάθε νέο μήνυμα
+            const offsetY = 10 + messageCount * 20;  // Ενδεικτική τοποθέτηση με βάση τον αριθμό του μηνύματος
+            envelopeContainer.style.top = `${offsetY}%`;
+            envelopeContainer.style.left = '10%';  // Σταθερή θέση για το μήνυμα (μπορείς να το τροποποιήσεις όπως θέλεις)
 
-            // Άνοιγμα του φακέλου (Αρχικά είναι κλειστός)
+            // Άνοιγμα του φακέλου
             setTimeout(() => {
-                topFlap.style.transform = "rotateX(0deg)"; // Ανοίγει
+                topFlap.style.transform = "rotateX(-150deg)";
+                
+                // Εμφάνιση μηνύματος
                 setTimeout(() => {
                     message.style.opacity = 1;
                     message.style.transform = "translateY(0)";
                 }, 1000);
             }, 1000);
 
-            // Κλείσιμο του φακέλου
+            // Ο φάκελος εξαφανίζεται μετά από 5 δευτερόλεπτα
             setTimeout(() => {
-                message.style.opacity = 0;
-                message.style.transform = "translateΥ(150px)";
+                envelope.style.opacity = 0; // Εξαφάνιση του φακέλου
                 setTimeout(() => {
-                    topFlap.style.transform = "rotateX(0deg)"; // Επιστρέφει σε κλειστή κατάσταση
+                    envelope.remove(); // Αφαίρεση του φακέλου
                 }, 1000);
-            }, 5000);
+            }, 5000); // Ο φάκελος παραμένει για 5 δευτερόλεπτα
 
-            messageCount++; // Αύξηση του αριθμού μηνυμάτων που έχουν εμφανιστεί
+            messageCount++; // Αυξάνουμε τον αριθμό των εμφανισμένων μηνυμάτων
         }
 
         // Φόρτωμα αποδεκτών μηνυμάτων από το backend
