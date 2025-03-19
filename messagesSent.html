@@ -142,7 +142,9 @@
             envelopeContainer.style.top = `${offsetY}%`;
             envelopeContainer.style.left = '10%';  // Σταθερή θέση για το μήνυμα (μπορείς να το τροποποιήσεις όπως θέλεις)
               // Ανοίγει το φάκελο
-         setTimeout(() => {
+        
+            
+   setTimeout(() => {
                 topFlap.style.transform = "rotateX(0deg)"; // Περιστροφή προς τα πάνω για άνοιγμα
                 setTimeout(() => {
                     message.style.opacity = 1;
@@ -158,28 +160,9 @@
             }, 5000);
         }
 
-            // Άνοιγμα του φακέλου
-            setTimeout(() => {
-                topFlap.style.transform = "rotateX(-150deg)";
-                
-                // Εμφάνιση μηνύματος
-                setTimeout(() => {
-                    message.style.opacity = 1;
-                    message.style.transform = "translateY(0)";
-                }, 1000);
-            }, 1000);
 
             // Ο φάκελος εξαφανίζεται μετά από 5 δευτερόλεπτα
-            setTimeout(() => {
-                envelope.style.opacity = 0; // Εξαφάνιση του φακέλου
-                setTimeout(() => {
-                    envelope.remove(); // Αφαίρεση του φακέλου
-                }, 1000);
-            }, 5000); // Ο φάκελος παραμένει για 5 δευτερόλεπτα
-
-            messageCount++; // Αυξάνουμε τον αριθμό των εμφανισμένων μηνυμάτων
-        }
-
+           
         // Φόρτωμα αποδεκτών μηνυμάτων από το backend
         function loadAcceptedMessages() {
             fetch('https://sms-event.netlify.app/.netlify/functions/send', {
