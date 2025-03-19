@@ -39,8 +39,8 @@
             background: #d4af37;
             top: 0;
             clip-path: polygon(50% 0, 100% 100%, 0 100%);
-            transform-origin: bottom center; /* Το σημείο περιστροφής στην κορυφή */
-            transform: rotateX(150deg);
+            transform-origin: bottom;
+            transform: rotateX(0);
             transition: transform 1.5s ease-in-out;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             z-index: 2;
@@ -102,13 +102,15 @@
     <div id="messagesList" class="message-list"></div> <!-- Εδώ θα εμφανιστούν τα αποδεκτά μηνύματα -->
 
     <script>
-        let activeMessages = [];
-        let messageCount = 0;
+        let activeMessages = []; // Διατήρηση των ενεργών μηνυμάτων
+        let messageCount = 0; // Αριθμός μηνυμάτων που έχουν εμφανιστεί
 
+        // Συνάρτηση για την εμφάνιση του τελευταίου μηνύματος με το φάκελο
         function showEnvelopeMessage(text) {
+            // Αφαίρεση του προηγούμενου φακέλου
             const existingEnvelope = document.querySelector('.envelope-container');
             if (existingEnvelope) {
-                existingEnvelope.remove();
+                existingEnvelope.remove(); // Αφαίρεση του προηγούμενου φακέλου και μηνύματος
             }
 
             const envelopeContainer = document.createElement('div');
@@ -131,37 +133,46 @@
             envelope.appendChild(bodyPart);
             envelopeContainer.appendChild(envelope);
             envelopeContainer.appendChild(message);
-
+            
             document.body.appendChild(envelopeContainer);
+            
+            // Καθορισμένη θέση για το κάθε νέο μήνυμα
+            const offsetY = 10 + messageCount * 20;  // Ενδεικτική τοποθέτηση με βάση τον αριθμό του μηνύματος
+            envelopeContainer.style.top = `${offsetY}%`;
+            envelopeContainer.style.left = '10%';  // Σταθερή θέση για το μήνυμα (μπορείς να το τροποποιήσεις όπως θέλεις)
 
             // Άνοιγμα του φακέλου
             setTimeout(() => {
-                topFlap.style.transform = "rotateX(0deg)"; // Ανοίγει το τρίγωνο
+                topFlap.style.transform = "rotateX(-150deg)";
+                
+                // Εμφάνιση μηνύματος
                 setTimeout(() => {
                     message.style.opacity = 1;
                     message.style.transform = "translateY(0)";
                 }, 1000);
             }, 1000);
 
-            // Κλείσιμο του φακέλου
+            // Ο φάκελος εξαφανίζεται μετά από 5 δευτερόλεπτα
             setTimeout(() => {
-                topFlap.style.transform = "rotateX(0deg)"; // Επιστρέφει το τρίγωνο στη θέση του
+                envelope.style.opacity = 0; // Εξαφάνιση του φακέλου
                 setTimeout(() => {
-                    envelope.style.opacity = 0;
-                    setTimeout(() => {
-                        envelope.remove();
-                    }, 1000);
+                    envelope.remove(); // Αφαίρεση του φακέλου
                 }, 1000);
-            }, 5000);
+            }, 5000); // Ο φάκελος παραμένει για 5 δευτερόλεπτα
+
+            messageCount++; // Αυξάνουμε τον αριθμό των εμφανισμένων μηνυμάτων
         }
 
+        // Φόρτωμα αποδεκτών μηνυμάτων από το backend
         function loadAcceptedMessages() {
             fetch('https://sms-event.netlify.app/.netlify/functions/send', {
                 method: 'GET',
             })
             .then(response => response.json())
             .then(data => {
-                const messagesList = data.acceptedMessages || [];
+                const messagesList = data.acceptedMessages || []; // Πάρε τα αποδεκτά μηνύματα
+                
+                // Εμφάνιση μόνο του τελευταίου μηνύματος με το φάκελο
                 if (messagesList.length > 0) {
                     const lastMessage = messagesList[messagesList.length - 1];
                     showEnvelopeMessage(lastMessage.message);
@@ -172,8 +183,9 @@
             });
         }
 
+        // Κάλεσε την συνάρτηση κατά την φόρτωση της σελίδας
         loadAcceptedMessages();
-        setInterval(loadAcceptedMessages, 5000);
+        setInterval(loadAcceptedMessages, 5000); // Ενημέρωση κάθε 5 δευτερόλεπτα
     </script>
 </body>
 </html>
