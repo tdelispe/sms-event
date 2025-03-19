@@ -39,8 +39,8 @@
             background: #d4af37;
             top: 0;
             clip-path: polygon(50% 0, 100% 100%, 0 100%);
-            transform-origin: top; /* Το σημείο περιστροφής στην κορυφή */
-            transform: rotateX(0);
+            transform-origin: bottom center; /* Το σημείο περιστροφής στην κορυφή */
+            transform: rotateX(150deg);
             transition: transform 1.5s ease-in-out;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             z-index: 2;
@@ -136,7 +136,7 @@
 
             // Άνοιγμα του φακέλου
             setTimeout(() => {
-                topFlap.style.transform = "rotateX(150deg)"; // Ανοίγει το τρίγωνο
+                topFlap.style.transform = "rotateX(0deg)"; // Ανοίγει το τρίγωνο
                 setTimeout(() => {
                     message.style.opacity = 1;
                     message.style.transform = "translateY(0)";
