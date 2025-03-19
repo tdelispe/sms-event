@@ -71,24 +71,26 @@
                 .catch(error => console.error('Σφάλμα:', error));
         }
 
-       function handleDecision(messageId, decision, messageText = '') {
-    fetch('https://sms-event.netlify.app/.netlify/functions/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messageId, decision })
-    })
-    .then(response => response.json())
-    .then(() => {
-        if (decision === 'accept') {
-            // Αν η απόφαση είναι αποδοχή, κάνουμε redirect στην άλλη σελίδα χωρίς να προσθέσουμε το μήνυμα στο URL
-            window.location.replace('messagesSent.html');
-        } else {
-            loadMessages();  // Αν απορριφθεί, ανανεώνουμε τη λίστα
+        function handleDecision(messageId, decision, messageText = '') {
+            fetch('https://sms-event.netlify.app/.netlify/functions/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messageId, decision })
+            })
+            .then(response => response.json())
+            .then(() => {
+                if (decision === 'accept') {
+                    // Αν η απόφαση είναι αποδοχή, κάνουμε update της λίστας των μηνυμάτων
+                    alert(`Το μήνυμα με ID: ${messageId} αποδεχτήκαμε!`);
+                    loadMessages();  // Επαναφόρτωση των μηνυμάτων
+                } else {
+                    // Αν απορριφθεί, ανανεώνουμε τη λίστα
+                    alert(`Το μήνυμα με ID: ${messageId} απορρίφθηκε!`);
+                    loadMessages();  // Επαναφόρτωση των μηνυμάτων
+                }
+            })
+            .catch(error => console.error('Σφάλμα:', error));
         }
-    })
-    .catch(error => console.error('Σφάλμα:', error));
-}
-
 
         loadMessages();
         setInterval(loadMessages, 5000);
