@@ -10,9 +10,9 @@ exports.handler = async function (event, context) {
 
         console.log("Μήνυμα από τον χρήστη:", message, "Απόφαση:", decision, "ID:", messageId);
 
-        // Εάν το μήνυμα έχει ID, το αποθηκεύουμε στη λίστα messages
-        if (!messageId) {
-            // Εάν το ID δεν υπάρχει, δημιουργούμε ένα μοναδικό ID για το μήνυμα
+        // Αν πρόκειται για την προσθήκη μηνύματος
+        if (!messageId && message) {
+            // Δημιουργία μοναδικού ID για το νέο μήνυμα
             const newMessage = {
                 id: Date.now(),  // Δημιουργία μοναδικού ID με βάση το χρόνο
                 message: message
@@ -25,19 +25,34 @@ exports.handler = async function (event, context) {
                     message: `Το μήνυμα '${message}' προστέθηκε με ID: ${newMessage.id}`
                 })
             };
-        } else {
-            // Αν το ID υπάρχει, επεξεργαζόμαστε την απόφαση
+        }
+        // Αν πρόκειται για την επεξεργασία απόφασης (accept/decline)
+        else if (messageId && decision !== undefined) {
+            // Βρίσκουμε το μήνυμα με το συγκεκριμένο ID
             const messageIndex = messages.findIndex(msg => msg.id === messageId);
             if (messageIndex > -1) {
-                messages.splice(messageIndex, 1);  // Διαγραφή του μηνύματος από τον πίνακα
-                console.log(`Το μήνυμα με ID: ${messageId} διαγράφηκε.`);
-                return {
-                    statusCode: 200,
-                    body: JSON.stringify({
-                        success: true,
-                        message: `Η απόφαση για το μήνυμα με ID: ${messageId} καταχωρήθηκε επιτυχώς και το μήνυμα διαγράφηκε.`
-                    })
-                };
+                if (decision === 'decline') {
+                    // Αν η απόφαση είναι "απόρριψη", διαγράφουμε το μήνυμα
+                    messages.splice(messageIndex, 1);
+                    console.log(`Το μήνυμα με ID: ${messageId} διαγράφηκε λόγω απόρριψης.`);
+                    return {
+                        statusCode: 200,
+                        body: JSON.stringify({
+                            success: true,
+                            message: `Το μήνυμα με ID: ${messageId} διαγράφηκε λόγω απόρριψης.`
+                        })
+                    };
+                } else if (decision === 'accept') {
+                    // Αν η απόφαση είναι "αποδοχή", δεν κάνουμε τίποτα, το μήνυμα παραμένει
+                    console.log(`Το μήνυμα με ID: ${messageId} αποδεχτήκαμε.`);
+                    return {
+                        statusCode: 200,
+                        body: JSON.stringify({
+                            success: true,
+                            message: `Το μήνυμα με ID: ${messageId} αποδεχτήκαμε.`
+                        })
+                    };
+                }
             } else {
                 return {
                     statusCode: 404,
