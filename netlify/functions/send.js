@@ -63,7 +63,7 @@ exports.handler = async function (event, context) {
         else if (messageId && decision !== undefined) {
             const messageIndex = messages.findIndex(msg => msg.id === messageId);
             if (messageIndex > -1) {
-                if (decision === 'decline') {
+                if (decision === 'reject') {
                     // Αν η απόφαση είναι "απόρριψη", διαγράφουμε το μήνυμα
                     messages.splice(messageIndex, 1);
                     console.log(`Το μήνυμα με ID: ${messageId} διαγράφηκε λόγω απόρριψης.`);
