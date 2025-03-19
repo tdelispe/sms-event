@@ -6,25 +6,84 @@
     <title>Αποδεκτά Μηνύματα</title>
     <style>
         /* Στυλ για εμφάνιση των μηνυμάτων */
-        .message-container {
-            padding: 20px;
-            background-color: #fff;
-            margin: 10px auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 600px;
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('dep.png.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
         }
+
+        .envelope-container {
+            position: absolute;
+            width: 220px;
+            height: 160px;
+            perspective: 1000px;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .envelope-top {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            background: #d4af37;
+            top: 0;
+            clip-path: polygon(50% 0, 100% 100%, 0 100%);
+            transform-origin: bottom;
+            transform: rotateX(0);
+            transition: transform 1.5s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        .envelope-body {
+            position: absolute;
+            width: 100%;
+            height: 60%;
+            bottom: 0;
+            background-color: #8B4513;
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1em;
+        }
+
         .message {
-            font-size: 1.2em;
-            color: #555;
-            margin-bottom: 15px;
+            position: absolute;
+            width: 180px;
+            background-color: black;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            font-size: 1em;
+            font-weight: bold;
+            color: white;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+            top: -70px;
+            left: 10px;
         }
     </style>
 </head>
 <body>
     <h1 style="text-align:center; color: #9b4d96;">Αποδεκτά Μηνύματα</h1>
-    
     <div id="messagesList"></div>  <!-- Εδώ θα εμφανιστούν τα αποδεκτά μηνύματα -->
 
     <script>
@@ -37,7 +96,7 @@
             .then(data => {
                 const messagesList = data.acceptedMessages || []; // Πάρε τα αποδεκτά μηνύματα
                 
-                // Εμφάνισε τα μηνύματα
+                // Εμφάνισε τα μηνύματα με το σχέδιο του φακέλου
                 const messagesContainer = document.getElementById('messagesList');
                 messagesContainer.innerHTML = ''; // Καθαρίστε το περιεχόμενο πριν προσθέσετε νέα μηνύματα
 
@@ -45,16 +104,58 @@
                     messagesContainer.innerHTML = '<p>Δεν υπάρχουν αποδεκτά μηνύματα.</p>';
                 } else {
                     messagesList.forEach(message => {
-                        const messageElement = document.createElement('div');
-                        messageElement.classList.add('message-container');
-                        messageElement.innerHTML = `<div class="message">${message.message}</div>`;
-                        messagesContainer.appendChild(messageElement);
+                        showEnvelopeMessage(message.message);
                     });
                 }
             })
             .catch(error => {
                 console.error('Σφάλμα κατά την φόρτωση των μηνυμάτων:', error);
             });
+        }
+
+        // Συνάρτηση για την εμφάνιση των μηνυμάτων με το σχέδιο του φακέλου
+        function showEnvelopeMessage(text) {
+            const envelopeContainer = document.createElement('div');
+            envelopeContainer.classList.add('envelope-container');
+            
+            const envelope = document.createElement('div');
+            envelope.classList.add('envelope');
+            
+            const topFlap = document.createElement('div');
+            topFlap.classList.add('envelope-top');
+            
+            const bodyPart = document.createElement('div');
+            bodyPart.classList.add('envelope-body');
+            
+            const message = document.createElement('div');
+            message.classList.add('message');
+            message.textContent = text;
+
+            envelope.appendChild(topFlap);
+            envelope.appendChild(bodyPart);
+            envelopeContainer.appendChild(envelope);
+            envelopeContainer.appendChild(message);
+            
+            document.body.appendChild(envelopeContainer);
+            
+            envelopeContainer.style.top = `${Math.random() * 60 + 10}%`;
+            envelopeContainer.style.left = `${Math.random() * 60 + 10}%`;
+            
+            setTimeout(() => {
+                topFlap.style.transform = "rotateX(-150deg)";
+                
+                setTimeout(() => {
+                    message.style.opacity = 1;
+                    message.style.transform = "translateY(0)";
+                }, 1000);
+            }, 1000);
+            
+            setTimeout(() => {
+                envelopeContainer.style.opacity = 0;
+                setTimeout(() => {
+                    envelopeContainer.remove();
+                }, 1000);
+            }, 5000);
         }
 
         // Κάλεσε την συνάρτηση κατά την φόρτωση της σελίδας
