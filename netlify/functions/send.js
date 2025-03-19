@@ -10,7 +10,7 @@ exports.handler = async function (event, context) {
 
         console.log("Μήνυμα από τον χρήστη:", message, "Απόφαση:", decision, "ID:", messageId);
 
-        // Αν πρόκειται για την προσθήκη μηνύματος
+        // Αν το μήνυμα έχει μόνο message και όχι messageId
         if (!messageId && message) {
             // Δημιουργία μοναδικού ID για το νέο μήνυμα
             const newMessage = {
@@ -26,9 +26,40 @@ exports.handler = async function (event, context) {
                 })
             };
         }
-        // Αν πρόκειται για την επεξεργασία απόφασης (accept/decline)
+        
+        // Αν το μήνυμα έχει messageId και message
+        else if (messageId && message) {
+            // Βρίσκουμε αν το μήνυμα με το συγκεκριμένο messageId υπάρχει ήδη
+            const messageIndex = messages.findIndex(msg => msg.id === messageId);
+            if (messageIndex === -1) {
+                // Αν το μήνυμα δεν υπάρχει ήδη, το προσθέτουμε σαν νέο μήνυμα
+                const newMessage = {
+                    id: messageId,  // Χρησιμοποιούμε το υπάρχον messageId
+                    message: message
+                };
+                messages.push(newMessage);
+                console.log(`Το νέο μήνυμα με ID: ${messageId} προστέθηκε.`);
+                return {
+                    statusCode: 200,
+                    body: JSON.stringify({
+                        success: true,
+                        message: `Το νέο μήνυμα με ID: ${messageId} προστέθηκε.`
+                    })
+                };
+            } else {
+                // Αν το μήνυμα υπάρχει ήδη, το αφήνουμε αμετάβλητο
+                return {
+                    statusCode: 400,  // Bad request γιατί δεν επιτρέπεται η ανανέωση του μηνύματος
+                    body: JSON.stringify({
+                        success: false,
+                        message: `Το μήνυμα με ID: ${messageId} υπάρχει ήδη και δεν επιτρέπεται να ανανεωθεί.`
+                    })
+                };
+            }
+        }
+        
+        // Αν πρόκειται για την επεξεργασία απόφασης (accept/decline) για κάποιο μήνυμα
         else if (messageId && decision !== undefined) {
-            // Βρίσκουμε το μήνυμα με το συγκεκριμένο ID
             const messageIndex = messages.findIndex(msg => msg.id === messageId);
             if (messageIndex > -1) {
                 if (decision === 'decline') {
