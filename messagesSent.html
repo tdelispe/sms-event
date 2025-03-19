@@ -93,6 +93,7 @@
             position: relative;
             max-height: 80vh;
             overflow-y: auto;
+            width: 100%;
         }
     </style>
 </head>
@@ -128,10 +129,12 @@
             
             document.body.appendChild(envelopeContainer);
             
-            // Τοποθετούμε το φάκελο σε τυχαία θέση
-            envelopeContainer.style.top = `${Math.random() * 60 + 10}%`;
-            envelopeContainer.style.left = `${Math.random() * 60 + 10}%`;
-            
+            // Τοποθετούμε το φάκελο σε νέα θέση
+            const randomTop = `${Math.random() * 60 + 10}%`;
+            const randomLeft = `${Math.random() * 60 + 10}%`;
+            envelopeContainer.style.top = randomTop;
+            envelopeContainer.style.left = randomLeft;
+
             // Άνοιγμα του φακέλου
             setTimeout(() => {
                 topFlap.style.transform = "rotateX(-150deg)";
@@ -151,6 +154,7 @@
                 }, 1000);
             }, 5000); // Ο φάκελος παραμένει για 5 δευτερόλεπτα
 
+            // Διατήρηση του μηνύματος
             activeMessages.push(message); // Προσθήκη του νέου μηνύματος στον πίνακα
         }
 
