@@ -37,11 +37,10 @@
             width: 100%;
             height: 50%;
             background: #d4af37;
-            top: 0; /* Αρχικά κλειστό στην κορυφή */
-            left: 0;
+            top: 0;
             clip-path: polygon(50% 0, 100% 100%, 0 100%);
-            transform-origin: bottom center; /* Περιστροφή από τη βάση του τριγώνου */
-            transform: rotateX(-150deg); /* Ξεκινά σε κλειστή θέση */
+            transform-origin: bottom;
+            transform: rotateX(0);
             transition: transform 1.5s ease-in-out;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             z-index: 2;
@@ -141,28 +140,29 @@
             const offsetY = 10 + messageCount * 20;  // Ενδεικτική τοποθέτηση με βάση τον αριθμό του μηνύματος
             envelopeContainer.style.top = `${offsetY}%`;
             envelopeContainer.style.left = '10%';  // Σταθερή θέση για το μήνυμα (μπορείς να το τροποποιήσεις όπως θέλεις)
-              // Ανοίγει το φάκελο
-        
-            
-   setTimeout(() => {
-                topFlap.style.transform = "rotateX(0deg)"; // Περιστροφή προς τα πάνω για άνοιγμα
+
+            // Άνοιγμα του φακέλου
+            setTimeout(() => {
+                topFlap.style.transform = "rotateX(-150deg)";
+                
+                // Εμφάνιση μηνύματος
                 setTimeout(() => {
                     message.style.opacity = 1;
                     message.style.transform = "translateY(0)";
                 }, 1000);
             }, 1000);
-            
-            setTimeout(() => {
-                envelopeContainer.style.opacity = 0;
-                setTimeout(() => {
-                    envelopeContainer.remove();
-                }, 1000);
-            }, 5000);
-        }
-
 
             // Ο φάκελος εξαφανίζεται μετά από 5 δευτερόλεπτα
-           
+            setTimeout(() => {
+                envelope.style.opacity = 0; // Εξαφάνιση του φακέλου
+                setTimeout(() => {
+                    envelope.remove(); // Αφαίρεση του φακέλου
+                }, 1000);
+            }, 5000); // Ο φάκελος παραμένει για 5 δευτερόλεπτα
+
+            messageCount++; // Αυξάνουμε τον αριθμό των εμφανισμένων μηνυμάτων
+        }
+
         // Φόρτωμα αποδεκτών μηνυμάτων από το backend
         function loadAcceptedMessages() {
             fetch('https://sms-event.netlify.app/.netlify/functions/send', {
