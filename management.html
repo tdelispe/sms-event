@@ -4,110 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Διαχείριση Μηνυμάτων</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        .message-container {
+            margin-top: 20px;
+        }
+        .message-box {
+            border: 1px solid #9b4d96;
+            padding: 10px;
+            margin: 10px auto;
+            width: 60%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button {
+            padding: 5px 10px;
+            margin-left: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .accept {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .reject {
+            background-color: #e74c3c;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <h1>Διαχείριση Μηνυμάτων</h1>
-    <div id="messages"></div>
+    <div id="messages" class="message-container"></div>
 
     <script>
-        // Λειτουργία για να φορτώσουμε τα μηνύματα από το Netlify Functions
         function loadMessages() {
-            fetch('https://sms-event.netlify.app/.netlify/functions/send')  // Λαμβάνουμε τα μηνύματα
+            fetch('https://sms-event.netlify.app/.netlify/functions/send')
                 .then(response => response.json())
                 .then(data => {
                     const messagesDiv = document.getElementById('messages');
-                    const messages = data.messages;
-
-                    // Καθαρίζουμε τα προηγούμενα μηνύματα
                     messagesDiv.innerHTML = '';
+                    const messages = data.messages || [];
 
                     if (messages.length === 0) {
                         messagesDiv.innerHTML = 'Δεν υπάρχουν μηνύματα';
                     } else {
-                        // Εμφάνιση των μηνυμάτων με κουμπιά αποδοχής και απόρριψης
                         messages.forEach((message) => {
                             const messageElement = document.createElement('div');
-                            
-                            // Εμφανίζουμε το μήνυμα σωστά
-                            messageElement.textContent = message.message;  // Προσθήκη του κειμένου του μηνύματος
-
-                            // Δημιουργία κουμπιών για αποδοχή και απόρριψη
-                            const acceptButton = document.createElement('button');
-                            acceptButton.textContent = 'Αποδοχή';
-                            acceptButton.onclick = function() { handleDecision(message, 'accept'); };
-
-                            const rejectButton = document.createElement('button');
-                            rejectButton.textContent = 'Απόρριψη';
-                            rejectButton.onclick = function() { handleDecision(message, 'reject'); };
-
-                            // Προσθήκη κουμπιών κάτω από το μήνυμα
-                            messageElement.appendChild(acceptButton);
-                            messageElement.appendChild(rejectButton);
-
+                            messageElement.className = 'message-box';
+                            messageElement.innerHTML = `
+                                <span>${message.message}</span>
+                                <div>
+                                    <button class="accept" onclick="handleDecision(${message.id}, 'accept', '${encodeURIComponent(message.message)}')">Αποδοχή</button>
+                                    <button class="reject" onclick="handleDecision(${message.id}, 'reject')">Απόρριψη</button>
+                                </div>
+                            `;
                             messagesDiv.appendChild(messageElement);
                         });
                     }
                 })
-                .catch(error => {
-                    console.error('Σφάλμα:', error);
-                });
+                .catch(error => console.error('Σφάλμα:', error));
         }
 
-        // Συνάρτηση για χειρισμό της απόφασης
-        function handleDecision(message, decision) {
-            // Αποστολή της απόφασης στο send.js
+        function handleDecision(messageId, decision, messageText = '') {
             fetch('https://sms-event.netlify.app/.netlify/functions/send', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    messageId: message.id,  // Στέλνουμε το ID του μηνύματος
-                    decision: decision
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messageId, decision })
             })
             .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο send');
-
-                    // Τώρα που ολοκληρώθηκε η πρώτη, κάνε τη δεύτερη fetch
-                    return fetch('https://sms-event.netlify.app/.netlify/functions/messagesDecision', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            message: message.message,
-                            decision: decision
-                        })
-                    });
+            .then(() => {
+                if (decision === 'accept') {
+                    window.location.href = `messagesSent.html?message=${messageText}`;
                 } else {
-                    throw new Error('Η αποστολή στο send απέτυχε');
+                    loadMessages();  // Αν απορριφθεί, ανανεώνουμε τη λίστα
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Η απόφαση καταχωρήθηκε επιτυχώς στο messagesDecision');
-                } else {
-                    throw new Error('Η αποστολή στο messagesDecision απέτυχε');
-                }
-            })
-            .catch(error => {
-                console.error('Σφάλμα:', error);
-            })
-            .finally(() => {
-                // Κάνε ανανέωση των μηνυμάτων **μόνο μία φορά**
-                loadMessages();
-            });
+            .catch(error => console.error('Σφάλμα:', error));
         }
 
-        // Φορτώνουμε τα μηνύματα όταν ανοίξει η σελίδα
         loadMessages();
-
-        // Ανανεώνουμε τα μηνύματα κάθε 3 δευτερόλεπτα
-        setInterval(loadMessages, 3000); // 3000 ms = 3 δευτερόλεπτα
+        setInterval(loadMessages, 5000);
     </script>
 </body>
 </html>
