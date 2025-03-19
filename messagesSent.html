@@ -142,13 +142,21 @@
             envelopeContainer.style.top = `${offsetY}%`;
             envelopeContainer.style.left = '10%';  // Σταθερή θέση για το μήνυμα (μπορείς να το τροποποιήσεις όπως θέλεις)
               // Ανοίγει το φάκελο
-            setTimeout(() => {
+         setTimeout(() => {
                 topFlap.style.transform = "rotateX(0deg)"; // Περιστροφή προς τα πάνω για άνοιγμα
                 setTimeout(() => {
                     message.style.opacity = 1;
                     message.style.transform = "translateY(0)";
                 }, 1000);
             }, 1000);
+            
+            setTimeout(() => {
+                envelopeContainer.style.opacity = 0;
+                setTimeout(() => {
+                    envelopeContainer.remove();
+                }, 1000);
+            }, 5000);
+        }
 
             // Άνοιγμα του φακέλου
             setTimeout(() => {
