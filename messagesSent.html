@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Αποδεκτά Μηνύματα</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -97,7 +97,7 @@
     </style>
 </head>
 <body>
-    <h1 style="text-align:center; color: #9b4d96;">Αποδεκτά Μηνύματα</h1>
+
     <div id="messagesList" class="message-list"></div> <!-- Εδώ θα εμφανιστούν τα αποδεκτά μηνύματα -->
 
     <script>
@@ -163,11 +163,11 @@
                 }, 1000);
             }, 1000);
 
-            // Αφαίρεση του φακέλου μετά από 5 δευτερόλεπτα
+            // Αφαίρεση του φακέλου μετά από 5 δευτερόλεπτα (φύγει ο φάκελος, παραμένει το μήνυμα)
             setTimeout(() => {
                 envelopeContainer.style.opacity = 0;
                 setTimeout(() => {
-                    envelopeContainer.remove();
+                    envelopeContainer.remove(); // Αφαίρεση του φακέλου
                 }, 1000);
             }, 5000);
 
