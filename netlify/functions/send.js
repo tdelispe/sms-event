@@ -1,4 +1,5 @@
 let messages = [];  // Ένας πίνακας για να κρατάμε τα μηνύματα
+let acceptedMessages =[]; // Πίνακας με τα εγεκριμένα μηνύματα
 
 // Αυτή η συνάρτηση χειρίζεται τα αιτήματα POST και GET
 exports.handler = async function (event, context) {
@@ -74,13 +75,17 @@ exports.handler = async function (event, context) {
                         })
                     };
                 } else if (decision === 'accept') {
-                    // Αν η απόφαση είναι "αποδοχή", δεν κάνουμε τίποτα, το μήνυμα παραμένει
-                    console.log(`Το μήνυμα με ID: ${messageId} αποδεχτήκαμε.`);
+                    // Αν η απόφαση είναι "αποδοχή", μεταφέρουμε το μήνυμα στη λίστα acceptedMessages
+                    const acceptedMessage = messages.splice(messageIndex, 1)[0];  // Αφαιρούμε το μήνυμα από την λίστα messages
+                    acceptedMessages.push(acceptedMessage);  // Το προσθέτουμε στη λίστα acceptedMessages
+                    
+                    console.log(`Το μήνυμα με ID: ${messageId} αποδεχτήκαμε και μεταφέρθηκε στη λίστα των αποδεκτών.`);
                     return {
                         statusCode: 200,
                         body: JSON.stringify({
                             success: true,
-                            message: `Το μήνυμα με ID: ${messageId} αποδεχτήκαμε.`
+                            message: `Το μήνυμα με ID: ${messageId} αποδεχτήκαμε και μεταφέρθηκε στη λίστα αποδεκτών.`
+                        })
                         })
                     };
                 }
