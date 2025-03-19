@@ -1,5 +1,7 @@
 let messages = [];  // Ένας πίνακας για να κρατάμε τα μηνύματα
 let acceptedMessages = []; // Πίνακας με τα εγκεκριμένα μηνύματα
+const messageLimit = 6;  // Όριο για τα αποδεκτά μηνύματα
+
 
 // Αυτή η συνάρτηση χειρίζεται τα αιτήματα POST και GET
 exports.handler = async function (event, context) {
@@ -78,6 +80,12 @@ exports.handler = async function (event, context) {
                     // Αν η απόφαση είναι "αποδοχή", μεταφέρουμε το μήνυμα στη λίστα acceptedMessages
                     const acceptedMessage = messages.splice(messageIndex, 1)[0];  // Αφαιρούμε το μήνυμα από την λίστα messages
                     acceptedMessages.push(acceptedMessage);  // Το προσθέτουμε στη λίστα acceptedMessages
+                    // Έλεγχος για το όριο των αποδεκτών μηνυμάτων
+                    if (acceptedMessages.length > messageLimit) {
+                        // Αν ο αριθμός των αποδεκτών μηνυμάτων ξεπερνά το όριο, διαγράφουμε το παλαιότερο μήνυμα
+                        acceptedMessages.shift();  // Αφαιρούμε το πρώτο (παλαιότερο) μήνυμα
+                        console.log('Το πρώτο αποδεκτό μήνυμα διαγράφηκε λόγω του ορίου.');
+                    }
                     
                     console.log(`Το μήνυμα με ID: ${messageId} αποδεχτήκαμε και μεταφέρθηκε στη λίστα των αποδεκτών.`);
                     return {
