@@ -103,13 +103,14 @@
 
     <script>
         let activeMessages = []; // Διατήρηση των ενεργών μηνυμάτων
+        let messageCount = 0; // Αριθμός μηνυμάτων που έχουν εμφανιστεί
 
         // Συνάρτηση για την εμφάνιση του τελευταίου μηνύματος με το φάκελο
         function showEnvelopeMessage(text) {
-            // Αφαίρεσε το παλιό μήνυμα και φάκελο, αν υπάρχει
-            const existingMessageContainer = document.querySelector('.envelope-container');
-            if (existingMessageContainer) {
-                existingMessageContainer.remove();
+            // Αφαίρεση του προηγούμενου φακέλου
+            const existingEnvelope = document.querySelector('.envelope-container');
+            if (existingEnvelope) {
+                existingEnvelope.remove(); // Αφαίρεση του προηγούμενου φακέλου και μηνύματος
             }
 
             const envelopeContainer = document.createElement('div');
@@ -135,9 +136,10 @@
             
             document.body.appendChild(envelopeContainer);
             
-            // Τοποθετούμε το φάκελο σε τυχαία θέση
-            envelopeContainer.style.top = `${Math.random() * 60 + 10}%`;
-            envelopeContainer.style.left = `${Math.random() * 60 + 10}%`;
+            // Καθορισμένη θέση για το κάθε νέο μήνυμα
+            const offsetY = 10 + messageCount * 20;  // Ενδεικτική τοποθέτηση με βάση τον αριθμό του μηνύματος
+            envelopeContainer.style.top = `${offsetY}%`;
+            envelopeContainer.style.left = '10%';  // Σταθερή θέση για το μήνυμα (μπορείς να το τροποποιήσεις όπως θέλεις)
 
             // Άνοιγμα του φακέλου
             setTimeout(() => {
@@ -150,18 +152,18 @@
                 }, 1000);
             }, 1000);
 
-            // Ο φάκελος φεύγει μετά την εμφάνιση
+            // Ο φάκελος εξαφανίζεται μετά από 5 δευτερόλεπτα
             setTimeout(() => {
-                envelopeContainer.style.opacity = 0;
+                envelope.style.opacity = 0; // Εξαφάνιση του φακέλου
                 setTimeout(() => {
-                    envelopeContainer.remove(); // Αφαίρεση του φακέλου
+                    envelope.remove(); // Αφαίρεση του φακέλου
                 }, 1000);
             }, 5000); // Ο φάκελος παραμένει για 5 δευτερόλεπτα
 
-            activeMessages.push(message); // Προσθήκη του νέου μηνύματος στον πίνακα
+            messageCount++; // Αυξάνουμε τον αριθμό των εμφανισμένων μηνυμάτων
         }
 
-        // Φόρτωσε τα αποδεκτά μηνύματα από το backend
+        // Φόρτωμα αποδεκτών μηνυμάτων από το backend
         function loadAcceptedMessages() {
             fetch('https://sms-event.netlify.app/.netlify/functions/send', {
                 method: 'GET',
@@ -170,18 +172,10 @@
             .then(data => {
                 const messagesList = data.acceptedMessages || []; // Πάρε τα αποδεκτά μηνύματα
                 
-                // Εμφάνισε τα μηνύματα με το σχέδιο του φακέλου
-                const messagesContainer = document.getElementById('messagesList');
-                messagesContainer.innerHTML = ''; // Καθαρίστε το περιεχόμενο πριν προσθέσετε νέα μηνύματα
-
-                if (messagesList.length === 0) {
-                    messagesContainer.innerHTML = '<p>Δεν υπάρχουν αποδεκτά μηνύματα.</p>';
-                } else {
-                    messagesList.forEach((message, index) => {
-                        if (index === messagesList.length - 1) {
-                            showEnvelopeMessage(message.message);
-                        }
-                    });
+                // Εμφάνιση μόνο του τελευταίου μηνύματος με το φάκελο
+                if (messagesList.length > 0) {
+                    const lastMessage = messagesList[messagesList.length - 1];
+                    showEnvelopeMessage(lastMessage.message);
                 }
             })
             .catch(error => {
