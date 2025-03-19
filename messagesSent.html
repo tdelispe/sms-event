@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Αποδεκτά Μηνύματα</title>
     <style>
-        /* Στυλ για εμφάνιση των μηνυμάτων */
         body {
             font-family: 'Arial', sans-serif;
-            background: url('dep.png.jpg') no-repeat center center fixed;
+            background-color: orange;
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -80,13 +79,31 @@
             top: -70px;
             left: 10px;
         }
+
+        .message-container {
+            padding: 20px;
+            background-color: #fff;
+            margin: 10px auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        .message-list {
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
     <h1 style="text-align:center; color: #9b4d96;">Αποδεκτά Μηνύματα</h1>
-    <div id="messagesList"></div>  <!-- Εδώ θα εμφανιστούν τα αποδεκτά μηνύματα -->
+    <div id="messagesList" class="message-list"></div> <!-- Εδώ θα εμφανιστούν τα αποδεκτά μηνύματα -->
 
     <script>
+        let activeMessages = [];
+        const maxMessages = 3; // Όριο αριθμού μηνυμάτων
+
         // Φόρτωσε τα αποδεκτά μηνύματα από το backend
         function loadAcceptedMessages() {
             fetch('https://sms-event.netlify.app/.netlify/functions/send', {
@@ -96,16 +113,10 @@
             .then(data => {
                 const messagesList = data.acceptedMessages || []; // Πάρε τα αποδεκτά μηνύματα
                 
-                // Εμφάνισε τα μηνύματα με το σχέδιο του φακέλου
-                const messagesContainer = document.getElementById('messagesList');
-                messagesContainer.innerHTML = ''; // Καθαρίστε το περιεχόμενο πριν προσθέσετε νέα μηνύματα
-
-                if (messagesList.length === 0) {
-                    messagesContainer.innerHTML = '<p>Δεν υπάρχουν αποδεκτά μηνύματα.</p>';
-                } else {
-                    messagesList.forEach(message => {
-                        showEnvelopeMessage(message.message);
-                    });
+                // Εμφάνισε το τελευταίο μήνυμα με το σχέδιο του φακέλου
+                if (messagesList.length > 0) {
+                    const messageText = messagesList[messagesList.length - 1].message;
+                    showEnvelopeMessage(messageText);
                 }
             })
             .catch(error => {
@@ -138,9 +149,11 @@
             
             document.body.appendChild(envelopeContainer);
             
+            // Τοποθετούμε το φάκελο σε τυχαία θέση
             envelopeContainer.style.top = `${Math.random() * 60 + 10}%`;
             envelopeContainer.style.left = `${Math.random() * 60 + 10}%`;
             
+            // Άνοιγμα του φακέλου
             setTimeout(() => {
                 topFlap.style.transform = "rotateX(-150deg)";
                 
@@ -149,13 +162,24 @@
                     message.style.transform = "translateY(0)";
                 }, 1000);
             }, 1000);
-            
+
+            // Αφαίρεση του φακέλου μετά από 5 δευτερόλεπτα
             setTimeout(() => {
                 envelopeContainer.style.opacity = 0;
                 setTimeout(() => {
                     envelopeContainer.remove();
                 }, 1000);
             }, 5000);
+
+            // Αν έχουμε παραπάνω από το μέγιστο αριθμό μηνυμάτων, αφαίρεσε το παλιότερο
+            activeMessages.push(message);
+            if (activeMessages.length > maxMessages) {
+                const oldMessage = activeMessages.shift();
+                oldMessage.style.opacity = 0; // Κρύψε το παλιό μήνυμα
+                setTimeout(() => {
+                    oldMessage.remove(); // Αφαίρεσέ το από την οθόνη
+                }, 1000);
+            }
         }
 
         // Κάλεσε την συνάρτηση κατά την φόρτωση της σελίδας
